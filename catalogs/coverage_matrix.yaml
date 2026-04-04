@@ -1,0 +1,34 @@
+release_default:
+  required_dims:
+    - language
+    - source_stage
+    - directness
+    - attack_family
+  min_per_cell: 1
+
+l2_runs:
+  required_dims:
+    - language
+    - source_stage
+    - directness
+    - enforcement_mode
+  min_per_cell: 1
+
+ko_native_axes:
+  required_dims:
+    - language
+    - attack_family
+    - entry_point
+  filters:
+    language: ko
+  min_per_cell: 1
+
+ko_mutation_focus:
+  required_dims:
+    - language
+    - source_stage
+    - turn_mode
+  filters:
+    language: ko
+    attack_family: ko_native_mutation_layer
+  min_per_cell: 1

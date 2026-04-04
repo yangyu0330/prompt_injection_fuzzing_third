@@ -1,0 +1,46 @@
+attack_types:
+  - direct_user_injection
+  - indirect_document_web_rag
+  - email_agent_injection
+  - repo_coding_agent_injection
+  - tool_agent_misuse
+  - adaptive_fuzzing
+  - benign_hard_negative
+  - ko_native_mutation_layer
+  - korean_service_context
+  - ko_detector_guardrail_track
+
+mutation_families:
+  - direct_override
+  - roleplay_persona_hijack
+  - parameter_policy_manipulation
+  - structured_wrapper_injection
+  - tool_hierarchy_abuse
+  - quote_wrapper
+  - code_block_wrapper
+  - html_wrapper
+  - json_wrapper
+  - yaml_wrapper
+  - markdown_wrapper
+  - urgency_social_engineering
+  - jamo
+  - choseong
+  - kr_digits
+  - code_switch
+  - honorific_style
+  - spacing_particle_ending_variation
+  - hanja_romanization_mixed_script
+  - dialect_slang_neologism
+  - deferential_request
+  - casual_imperative
+  - bureaucratic_formal
+  - document_context_laundering
+  - rag_chunk_boundary_split
+  - tool_output_poisoning
+  - memory_summary_poisoning
+  - quoted_reply_footer_injection
+  - html_metadata_comment_injection
+  - table_csv_cell_injection
+  - ocr_noise_indirect
+  - approval_form_field_injection
+  - confirmation_bypass_framing

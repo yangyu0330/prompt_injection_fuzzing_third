@@ -1,0 +1,5 @@
+run_matrix:
+  guardrail_toggle: [on, off]
+  enforcement_mode: [allow, annotate, mask, block]
+  layers: [L1, L2, L3]
+  repeats: 1

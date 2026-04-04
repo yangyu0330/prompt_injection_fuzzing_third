@@ -1,0 +1,6 @@
+scenario_families:
+  - secret_leakage
+  - unauthorized_tool_use
+  - task_hijack
+  - tool_output_poisoning
+  - memory_summary_poisoning

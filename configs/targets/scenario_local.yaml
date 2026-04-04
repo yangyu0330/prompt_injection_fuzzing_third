@@ -1,0 +1,23 @@
+target_id: scenario-local-baseline
+mode: scenario
+transport: local
+method: POST
+headers: {}
+body_template:
+  trusted_instruction: "{trusted_instruction}"
+  text: "{rendered_input}"
+  metadata:
+    case_id: "{case_id}"
+    source_stage: "{source_stage}"
+    turn_mode: "{turn_mode}"
+    guardrail_toggle: "{guardrail_toggle}"
+    enforcement_mode: "{enforcement_mode}"
+request_field_map: {}
+response_field_map: {}
+timeout_sec: 30
+supports_pre_post: true
+supports_mask: true
+supports_tool_log: true
+supports_ttft: true
+auth: {}
+notes: local deterministic baseline

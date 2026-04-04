@@ -1,0 +1,15 @@
+carriers:
+  - plain_chat
+  - markdown
+  - html
+  - json
+  - yaml
+  - table
+  - csv_like_table
+  - ocr_text
+  - approval_form
+  - ticket_thread
+  - repo_file
+  - email_thread
+  - tool_result
+  - long_context_document

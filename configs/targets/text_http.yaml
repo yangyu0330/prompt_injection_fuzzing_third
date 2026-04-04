@@ -1,0 +1,23 @@
+target_id: text-http-baseline
+mode: text_only
+transport: http
+url: http://localhost:8000/detect
+method: POST
+headers:
+  Content-Type: application/json
+body_template:
+  text: "{rendered_input}"
+  trusted_instruction: "{trusted_instruction}"
+  metadata:
+    language: "{language}"
+    source_stage: "{source_stage}"
+    turn_mode: "{turn_mode}"
+request_field_map: {}
+response_field_map:
+  detected: result.detected
+timeout_sec: 30
+supports_pre_post: false
+supports_mask: false
+supports_tool_log: false
+supports_ttft: false
+auth: {}

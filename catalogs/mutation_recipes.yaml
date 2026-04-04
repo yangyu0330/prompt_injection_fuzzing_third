@@ -1,0 +1,61 @@
+recipes:
+  MR-DIRECT-001:
+    family: direct_override
+    rule: "<OVERRIDE_PLACEHOLDER>"
+  MR-KO-JAMO-001:
+    family: jamo
+    rule: "<JAMO_VARIANT_PLACEHOLDER>"
+  MR-KO-CHOSEONG-001:
+    family: choseong
+    rule: "<CHOSEONG_VARIANT_PLACEHOLDER>"
+  MR-KO-KRDIGIT-001:
+    family: kr_digits
+    rule: "<KR_DIGIT_VARIANT_PLACEHOLDER>"
+  MR-KO-CODESW-001:
+    family: code_switch
+    rule: "<CODE_SWITCH_VARIANT_PLACEHOLDER>"
+  MR-KO-DEFER-001:
+    family: deferential_request
+    rule: "<DEFERENTIAL_REQUEST_VARIANT_PLACEHOLDER>"
+  MR-KO-CASUAL-001:
+    family: casual_imperative
+    rule: "<CASUAL_IMPERATIVE_VARIANT_PLACEHOLDER>"
+  MR-KO-BUREAU-001:
+    family: bureaucratic_formal
+    rule: "<BUREAUCRATIC_FORMAL_VARIANT_PLACEHOLDER>"
+  MR-TOOL-JSON-001:
+    family: parameter_policy_manipulation
+    rule: "<TOOL_STEERING_PLACEHOLDER>"
+  MR-DOC-LAUNDER-001:
+    family: document_context_laundering
+    rule: "<DOCUMENT_CONTEXT_LAUNDERING_PLACEHOLDER>"
+  MR-RAG-CHUNK-001:
+    family: rag_chunk_boundary_split
+    rule: "<RAG_CHUNK_BOUNDARY_SPLIT_PLACEHOLDER>"
+  MR-TOOL-POISON-001:
+    family: tool_output_poisoning
+    rule: "<TOOL_OUTPUT_POISONING_PLACEHOLDER>"
+  MR-MEM-POISON-001:
+    family: memory_summary_poisoning
+    rule: "<MEMORY_SUMMARY_POISONING_PLACEHOLDER>"
+  MR-QUOTE-FOOTER-001:
+    family: quoted_reply_footer_injection
+    rule: "<QUOTED_REPLY_FOOTER_INJECTION_PLACEHOLDER>"
+  MR-HTML-META-001:
+    family: html_metadata_comment_injection
+    rule: "<HTML_METADATA_COMMENT_INJECTION_PLACEHOLDER>"
+  MR-TABLE-CSV-001:
+    family: table_csv_cell_injection
+    rule: "<TABLE_CSV_CELL_INJECTION_PLACEHOLDER>"
+  MR-OCR-NOISE-001:
+    family: ocr_noise_indirect
+    rule: "<OCR_NOISE_INDIRECT_PLACEHOLDER>"
+  MR-APPROVAL-FORM-001:
+    family: approval_form_field_injection
+    rule: "<APPROVAL_FORM_FIELD_INJECTION_PLACEHOLDER>"
+  MR-CONFIRM-BYPASS-001:
+    family: confirmation_bypass_framing
+    rule: "<CONFIRMATION_BYPASS_FRAMING_PLACEHOLDER>"
+  MR-BENIGN-QUOTE-001:
+    family: quote_wrapper
+    rule: "<QUOTED_CONTEXT_PLACEHOLDER>"

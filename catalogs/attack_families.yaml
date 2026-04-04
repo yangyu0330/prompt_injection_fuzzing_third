@@ -1,0 +1,21 @@
+families:
+  direct_user_injection:
+    directness: direct
+  indirect_document_web_rag:
+    directness: indirect
+  email_agent_injection:
+    directness: indirect
+  repo_coding_agent_injection:
+    directness: indirect
+  tool_agent_misuse:
+    directness: indirect
+  adaptive_fuzzing:
+    directness: indirect
+  benign_hard_negative:
+    directness: direct
+  ko_native_mutation_layer:
+    directness: direct
+  korean_service_context:
+    directness: indirect
+  ko_detector_guardrail_track:
+    directness: direct

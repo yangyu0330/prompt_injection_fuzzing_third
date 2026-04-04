@@ -1,0 +1,12 @@
+entry_points:
+  - user_prompt
+  - retrieved_document
+  - search_result
+  - email_body
+  - quoted_reply
+  - file_text
+  - form_field
+  - webpage_body
+  - html_comment_or_metadata
+  - tool_output
+  - memory_or_summary

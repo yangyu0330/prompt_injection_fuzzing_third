@@ -1,0 +1,10 @@
+priority:
+  - 최종프롬프트인젝션 유형.md
+  - 프롬프트_인젝션_데이터셋_설계.md
+  - Layer_1_2_3_4_설계.md
+  - 결과 아웃풋 형식.json
+  - codex4차.md
+
+interpretation:
+  primary_subject: prompt_injection_benchmark
+  pii_usage: evaluation_methodology_reference_only

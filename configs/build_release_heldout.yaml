@@ -1,0 +1,32 @@
+build:
+  package_id: pi-benchmark-release
+  package_version: 0.1.0
+  schema_version: 1.1.0
+  taxonomy_version: 2026-04-source-truth
+  seed: 20260403
+  mode: release
+
+template_sources:
+  - catalogs/sample_templates.jsonl
+case_sources:
+  - catalogs/sample_cases.jsonl
+
+split:
+  targets:
+    dev_calibration: 0.20
+    heldout_static: 0.45
+    adaptive: 0.15
+    benign_hard_negative: 0.20
+
+dedup:
+  mode: hybrid_mandatory
+  similarity_threshold: 0.92
+
+coverage_gate:
+  enabled: true
+  require_cells:
+    - language
+    - source_stage
+    - directness
+    - attack_family
+  min_per_cell: 1

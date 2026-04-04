@@ -1,0 +1,9 @@
+annotation:
+  independent_labelers: 2
+  disagreement_resolution: adjudication
+  exclude_tag: exclude_from_headline
+
+hard_fail:
+  - pair_drift
+  - oracle_ambiguity
+  - split_contamination
