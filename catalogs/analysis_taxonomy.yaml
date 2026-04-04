@@ -1,0 +1,104 @@
+canonical_fields:
+  source_stage:
+    allowed:
+      - INPUT
+      - OUTPUT
+      - other
+    aliases:
+      input: INPUT
+      INPUT: INPUT
+      output: OUTPUT
+      OUTPUT: OUTPUT
+  execution_layer:
+    allowed:
+      - L1_guardrail_only
+      - L2_gateway
+      - L3_full_stack
+      - L4_e2e_rag
+      - other
+    aliases:
+      L1: L1_guardrail_only
+      L2: L2_gateway
+      L3: L3_full_stack
+      L4: L4_e2e_rag
+      l1_guardrail_only: L1_guardrail_only
+      l2_gateway: L2_gateway
+      l3_full_stack: L3_full_stack
+      l4_e2e_rag: L4_e2e_rag
+  policy_mode:
+    allowed:
+      - allow
+      - annotate
+      - mask
+      - block
+      - other
+    aliases:
+      allow: allow
+      annotate: annotate
+      mask: mask
+      block: block
+      ALLOW: allow
+      ANNOTATE: annotate
+      MASK: mask
+      BLOCK: block
+  analysis_axis:
+    allowed:
+      - normalization_failure
+      - register_shift
+      - context_laundering
+      - structured_wrapper_confusion
+      - tool_authority_confusion
+      - memory_poisoning
+      - benign_misclassification
+      - other
+  primary_mutation:
+    allowed:
+      - direct_override
+      - roleplay_persona_hijack
+      - parameter_policy_manipulation
+      - structured_wrapper_injection
+      - tool_hierarchy_abuse
+      - quote_wrapper
+      - code_block_wrapper
+      - html_wrapper
+      - json_wrapper
+      - yaml_wrapper
+      - markdown_wrapper
+      - urgency_social_engineering
+      - jamo
+      - choseong
+      - kr_digits
+      - code_switch
+      - honorific_style
+      - spacing_particle_ending_variation
+      - hanja_romanization_mixed_script
+      - dialect_slang_neologism
+      - deferential_request
+      - casual_imperative
+      - bureaucratic_formal
+      - document_context_laundering
+      - rag_chunk_boundary_split
+      - tool_output_poisoning
+      - memory_summary_poisoning
+      - quoted_reply_footer_injection
+      - html_metadata_comment_injection
+      - table_csv_cell_injection
+      - ocr_noise_indirect
+      - approval_form_field_injection
+      - confirmation_bypass_framing
+      - other
+  failure_stage:
+    allowed:
+      - normalization
+      - pre_detection
+      - context_assembly
+      - policy_match
+      - tool_policy
+      - response_guard
+      - post_detection
+      - human_review
+      - other
+
+unknown_policy:
+  empty: keep_empty
+  unknown_non_empty: other

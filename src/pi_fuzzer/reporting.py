@@ -8,6 +8,23 @@ from typing import Any
 from .models import Scorecard
 
 
+def _render_bucket_table(lines: list[str], title: str, bucket: dict[str, Any]) -> None:
+    lines.append(f"### {title}")
+    if not bucket:
+        lines.append("")
+        lines.append("_no data_")
+        lines.append("")
+        return
+    lines.append("")
+    lines.append("| key | n | rate |")
+    lines.append("|---|---:|---:|")
+    for key, value in bucket.items():
+        n = value.get("n", 0) if isinstance(value, dict) else 0
+        rate = value.get("rate", 0.0) if isinstance(value, dict) else 0.0
+        lines.append(f"| `{key}` | {n} | {float(rate):.4f} |")
+    lines.append("")
+
+
 def write_scorecard_json(scorecard: Scorecard, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(scorecard.model_dump(), ensure_ascii=False, indent=2), encoding="utf-8")
@@ -34,6 +51,36 @@ def write_scorecard_markdown(scorecard: Scorecard, out_path: Path) -> None:
     lines.append(f"- `passed`: {s['coverage'].get('passed')}")
     if s["coverage"].get("failed_cells"):
         lines.append(f"- `failed_cells`: {s['coverage']['failed_cells']}")
+    lines.append("")
+    lines.append("## Korean Root Cause")
+    _render_bucket_table(lines, "By Analysis Axis", s.get("by_analysis_axis", {}))
+    _render_bucket_table(lines, "By Primary Mutation", s.get("by_primary_mutation", {}))
+    _render_bucket_table(lines, "By Primary Target Entity", s.get("by_primary_target_entity", {}))
+    _render_bucket_table(lines, "By Register Level", s.get("by_register_level", {}))
+    _render_bucket_table(lines, "By Failure Stage", s.get("by_failure_stage", {}))
+    _render_bucket_table(lines, "By Execution Layer", s.get("by_execution_layer", {}))
+    _render_bucket_table(lines, "By Source Stage", s.get("by_source_stage", {}))
+    _render_bucket_table(lines, "By Policy Mode", s.get("by_policy_mode", {}))
+    _render_bucket_table(lines, "By Language Route", s.get("by_language_route", {}))
+    _render_bucket_table(lines, "By Guard Stage Alignment", s.get("by_guard_stage_alignment", {}))
+    lines.append("### By Contrast Group Outcome")
+    contrast = s.get("by_contrast_group_outcome", {})
+    if not contrast:
+        lines.append("")
+        lines.append("_no data_")
+    else:
+        lines.append("")
+        lines.append("| contrast_group_id | roles_present | attack_run_count | benign_run_count | attack_success_rate | benign_overblock_rate | ko_en_gap |")
+        lines.append("|---|---|---:|---:|---:|---:|---:|")
+        for gid, item in contrast.items():
+            if not isinstance(item, dict):
+                continue
+            roles = ",".join(item.get("roles_present", []))
+            lines.append(
+                f"| `{gid}` | `{roles}` | {int(item.get('attack_run_count', 0))} | {int(item.get('benign_run_count', 0))} | "
+                f"{float(item.get('attack_success_rate', 0.0)):.4f} | {float(item.get('benign_overblock_rate', 0.0)):.4f} | "
+                f"{float(item.get('ko_en_gap', 0.0)):.4f} |"
+            )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -49,4 +96,3 @@ def write_results_csv(scorecard: Scorecard, out_path: Path) -> None:
         writer = csv.DictWriter(f, fieldnames=keys)
         writer.writeheader()
         writer.writerows(rows)
-

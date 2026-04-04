@@ -7,7 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 SplitName = Literal["dev_calibration", "heldout_static", "adaptive", "benign_hard_negative"]
-SourceStage = Literal["input", "output"]
+# Keep source stage permissive for backward compatibility across legacy/new values.
+SourceStage = str
 TurnMode = Literal["single_turn", "multi_turn"]
 EnforcementMode = Literal["allow", "annotate", "mask", "block"]
 AttackOrBenign = Literal["attack", "benign"]
@@ -78,6 +79,22 @@ class CaseRecord(BaseModel):
     mutation_recipe_id: str | None = None
     reproducibility_seed: int | None = None
     exclude_from_headline: bool = False
+    canonical_attack_intent_id: str = ""
+    canonical_untrusted_content: str = ""
+    primary_mutation: str = ""
+    secondary_mutations: list[str] = Field(default_factory=list)
+    register_level: str = ""
+    script_mix_profile: list[str] = Field(default_factory=list)
+    normalization_required: list[str] = Field(default_factory=list)
+    context_dependency_type: str = ""
+    analysis_axis: str = ""
+    benign_confounder_tags: list[str] = Field(default_factory=list)
+    primary_target_entity: str = ""
+    expected_sensitive_entities: list[str] = Field(default_factory=list)
+    contrast_group_id: str = ""
+    paired_case_role: str = ""
+    expected_guard_stage: str = ""
+    execution_layer: str = ""
 
 
 class RunRecord(BaseModel):
@@ -116,6 +133,28 @@ class RunRecord(BaseModel):
     response_hash: str = ""
     transcript_path: str = ""
     notes: str = ""
+    observed_input_text: str = ""
+    normalized_input_text: str = ""
+    applied_normalizers: list[str] = Field(default_factory=list)
+    normalization_changed: bool = False
+    normalization_diff_tags: list[str] = Field(default_factory=list)
+    language_route: str = ""
+    failure_stage: str = ""
+    failure_reason_tags: list[str] = Field(default_factory=list)
+    detector_reason_codes_pre: list[str] = Field(default_factory=list)
+    detector_reason_codes_post: list[str] = Field(default_factory=list)
+    response_disposition: str = ""
+    tool_decision_source: str = ""
+    chunk_join_required: bool = False
+    chunk_join_succeeded: bool | None = None
+    human_review_label: str = ""
+    human_root_cause_label: str = ""
+    review_confidence: float | None = None
+    execution_layer: str = ""
+    engine_name: str = ""
+    gateway_name: str = ""
+    policy_mode: str = ""
+    model_name: str = ""
 
 
 class TargetConfig(BaseModel):
@@ -136,6 +175,9 @@ class TargetConfig(BaseModel):
     supports_tool_log: bool = False
     supports_ttft: bool = False
     auth: dict[str, Any] = Field(default_factory=dict)
+    engine_name: str = ""
+    gateway_name: str = ""
+    model_name: str = ""
     notes: str = ""
 
 
@@ -156,6 +198,16 @@ class Scorecard(BaseModel):
     by_lang: dict[str, Any]
     latency: dict[str, Any]
     results: list[dict[str, Any]]
+    by_analysis_axis: dict[str, Any] = Field(default_factory=dict)
+    by_primary_mutation: dict[str, Any] = Field(default_factory=dict)
+    by_register_level: dict[str, Any] = Field(default_factory=dict)
+    by_failure_stage: dict[str, Any] = Field(default_factory=dict)
+    by_language_route: dict[str, Any] = Field(default_factory=dict)
+    by_primary_target_entity: dict[str, Any] = Field(default_factory=dict)
+    by_execution_layer: dict[str, Any] = Field(default_factory=dict)
+    by_policy_mode: dict[str, Any] = Field(default_factory=dict)
+    by_contrast_group_outcome: dict[str, Any] = Field(default_factory=dict)
+    by_guard_stage_alignment: dict[str, Any] = Field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -163,4 +215,3 @@ class CoverageViolation:
     key: tuple[str, ...]
     count: int
     required: int
-
