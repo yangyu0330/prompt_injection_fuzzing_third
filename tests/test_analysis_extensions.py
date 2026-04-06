@@ -171,10 +171,9 @@ def test_scoring_groups_execution_layer_source_stage_policy_mode() -> None:
     ]
     scorecard = build_scorecard(runs, [case_input, case_output], coverage_summary={"passed": True})
 
-    assert "INPUT" in scorecard.by_source_stage
-    assert "OUTPUT" in scorecard.by_source_stage
+    assert "input" in scorecard.by_source_stage
+    assert "output" in scorecard.by_source_stage
     assert "L3_full_stack" in scorecard.by_execution_layer
     assert "L4_e2e_rag" in scorecard.by_execution_layer
     assert "mask" in scorecard.by_policy_mode
     assert "block" in scorecard.by_policy_mode
-

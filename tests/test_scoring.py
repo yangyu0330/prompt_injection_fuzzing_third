@@ -83,3 +83,69 @@ def test_scorecard_run_meta_uses_scored_case_count() -> None:
     scorecard = build_scorecard(runs, cases, coverage_summary={"passed": True})
     assert scorecard.run["total_cases"] == 2
     assert scorecard.run["package_case_count"] == 3
+
+
+def test_scorecard_p0_p1_analysis_buckets_are_populated() -> None:
+    case_a = _case("A", "attack", "ko")
+    case_b = _case("B", "attack", "en")
+    case_a.source_role = "tool_output"
+    case_a.expected_interpretation = "data"
+    case_a.policy_requested = "block"
+    case_a.vendor_declared_support = ["trajectory_guard"]
+    case_a.tool_transition_type = "replay_to_tool"
+    case_b.source_role = "user"
+    case_b.expected_interpretation = "instruction"
+    case_b.policy_requested = "block"
+
+    run_a1 = _run("A", "allow", blocked=False, effective=True)
+    run_a1.secret_exposed = True
+    run_a1.source_role = "tool_output"
+    run_a1.expected_interpretation = "data"
+    run_a1.policy_requested = "block"
+    run_a1.policy_executed = "allow"
+    run_a1.detector_family = "replay_audit"
+    run_a1.failure_cause_code = "execution_gap"
+    run_a1.reason_codes = ["replay_trigger"]
+    run_a1.tool_transition_type = "replay_to_tool"
+    run_a1.config_fingerprint = "CFG-A"
+    run_a1.final_user_visible = "tool_call"
+    run_a1.vendor_declared_supported = True
+
+    run_a2 = _run("A", "block", blocked=True, effective=False)
+    run_a2.source_role = "tool_output"
+    run_a2.expected_interpretation = "data"
+    run_a2.policy_requested = "block"
+    run_a2.policy_executed = "block"
+    run_a2.detector_family = "replay_audit"
+    run_a2.failure_cause_code = "none"
+    run_a2.reason_codes = ["policy_denied"]
+    run_a2.tool_transition_type = "replay_to_tool"
+    run_a2.config_fingerprint = "CFG-B"
+    run_a2.final_user_visible = "safe_refusal"
+    run_a2.vendor_declared_supported = True
+
+    run_b = _run("B", "block", blocked=True, effective=False)
+    run_b.source_role = "user"
+    run_b.expected_interpretation = "instruction"
+    run_b.policy_requested = "block"
+    run_b.policy_executed = "block"
+    run_b.detector_family = "pattern"
+    run_b.failure_cause_code = "none"
+    run_b.reason_codes = ["policy_denied"]
+    run_b.tool_transition_type = "none"
+    run_b.config_fingerprint = "CFG-B"
+    run_b.final_user_visible = "safe_refusal"
+
+    scorecard = build_scorecard(
+        [run_a1, run_a2, run_b],
+        [case_a, case_b],
+        coverage_summary={"passed": True},
+    )
+    assert "tool_output" in scorecard.by_source_role
+    assert "data" in scorecard.by_expected_interpretation
+    assert "mismatch" in scorecard.by_policy_request_vs_execution
+    assert "match" in scorecard.by_policy_request_vs_execution
+    assert "replay_trigger" in scorecard.by_reason_code
+    assert "replay_to_tool" in scorecard.by_tool_transition
+    assert "sensitive" in scorecard.by_config_sensitivity
+    assert "claim_gap" in scorecard.by_vendor_claim_gap

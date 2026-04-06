@@ -45,6 +45,90 @@ def validate_split_contamination(cases: list[CaseRecord]) -> list[str]:
     return errors
 
 
+def validate_kr_en_pair_links(cases: list[CaseRecord]) -> list[str]:
+    errors: list[str] = []
+    by_pair: dict[str, list[CaseRecord]] = defaultdict(list)
+    for c in cases:
+        pair_id = (c.kr_en_pair_id or "").strip()
+        if pair_id:
+            by_pair[pair_id].append(c)
+
+    for pair_id, rows in by_pair.items():
+        langs = {r.language.lower()[:2] for r in rows}
+        if "ko" not in langs or "en" not in langs:
+            errors.append(f"{pair_id}: must include both ko and en variants")
+        if len(rows) < 2:
+            errors.append(f"{pair_id}: requires at least 2 cases")
+        row_ids = {r.case_id for r in rows}
+        for row in rows:
+            if row.paired_case_id and row.paired_case_id not in row_ids:
+                errors.append(f"{row.case_id}: paired_case_id must stay within kr_en_pair_id={pair_id}")
+    return errors
+
+
+def validate_benign_sibling_and_contrast(cases: list[CaseRecord]) -> list[str]:
+    errors: list[str] = []
+    idx = {c.case_id: c for c in cases}
+    groups: dict[str, list[CaseRecord]] = defaultdict(list)
+    for c in cases:
+        gid = (c.contrast_group_id or "").strip()
+        if gid:
+            groups[gid].append(c)
+        sibling = (c.benign_sibling_id or "").strip()
+        if not sibling:
+            continue
+        sib = idx.get(sibling)
+        if sib is None:
+            errors.append(f"{c.case_id}: benign_sibling_id missing target {sibling}")
+            continue
+        if c.attack_or_benign == sib.attack_or_benign:
+            errors.append(f"{c.case_id}: benign_sibling_id must point to opposite attack_or_benign")
+        if c.contrast_group_id and sib.contrast_group_id and c.contrast_group_id != sib.contrast_group_id:
+            errors.append(f"{c.case_id}: benign sibling contrast_group_id mismatch")
+
+    for gid, rows in groups.items():
+        has_attack = any(r.attack_or_benign == "attack" for r in rows)
+        has_benign = any(r.attack_or_benign == "benign" for r in rows)
+        requires_benign = any((r.benign_sibling_id or "").strip() for r in rows) or any(
+            (r.paired_case_role or "").strip().lower().startswith("benign") for r in rows
+        )
+        if requires_benign and has_attack and not has_benign:
+            errors.append(f"{gid}: contrast group has attack without benign sibling/control")
+    return errors
+
+
+def validate_source_role_stage_coverage(cases: list[CaseRecord]) -> list[str]:
+    errors: list[str] = []
+
+    for c in cases:
+        stage = (c.source_stage or "").strip().lower()
+        role = (c.source_role or "").strip().lower()
+        interp = (c.expected_interpretation or "").strip().lower()
+        requires_role = bool(role or interp) or stage in {"retrieval", "tool_input", "tool_output", "replay"}
+        if not requires_role:
+            continue
+        if not role:
+            errors.append(f"{c.case_id}: source_role required when role-stage coverage is enabled")
+            continue
+        if not interp:
+            errors.append(f"{c.case_id}: expected_interpretation required when source_role is present")
+        if stage == "tool_output" and role != "tool_output":
+            errors.append(f"{c.case_id}: source_stage=tool_output requires source_role=tool_output")
+        if stage == "replay" and role not in {"memory_note", "tool_output"}:
+            errors.append(f"{c.case_id}: source_stage=replay requires source_role in [memory_note, tool_output]")
+        if stage == "retrieval" and role not in {"retrieved_doc", "assistant_quote", "system_note"}:
+            errors.append(f"{c.case_id}: source_stage=retrieval requires retrieval-oriented source_role")
+    return errors
+
+
+def validate_analysis_linkage(cases: list[CaseRecord]) -> list[str]:
+    return (
+        validate_kr_en_pair_links(cases)
+        + validate_benign_sibling_and_contrast(cases)
+        + validate_source_role_stage_coverage(cases)
+    )
+
+
 def structural_fingerprint(c: CaseRecord) -> str:
     parts = [
         c.template_id,
@@ -132,4 +216,3 @@ def enforce_min_cell_coverage(
         if count < min_count:
             violations.append(CoverageViolation(key=key, count=count, required=min_count))
     return violations
-

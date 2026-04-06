@@ -10,6 +10,7 @@ from .text_utils import stable_key
 from .validation import (
     dedup_cases,
     enforce_min_cell_coverage,
+    validate_analysis_linkage,
     validate_pair_invariants,
     validate_split_contamination,
 )
@@ -99,8 +100,9 @@ def build_package(config_path: Path, out_dir: Path, project_root: Path) -> dict[
 
     pair_errors = validate_pair_invariants(cases)
     split_errors = validate_split_contamination(cases)
-    if pair_errors or split_errors:
-        msgs = "\n".join(pair_errors + split_errors)
+    analysis_errors = validate_analysis_linkage(cases)
+    if pair_errors or split_errors or analysis_errors:
+        msgs = "\n".join(pair_errors + split_errors + analysis_errors)
         raise ValueError(f"Validation failed:\n{msgs}")
 
     coverage_cfg = cfg.get("coverage_gate", {})
@@ -149,6 +151,7 @@ def validate_package(package_dir: Path, config_path: Path | None = None) -> dict
     cases = [CaseRecord(**row) for row in read_jsonl(package_dir / "cases.jsonl")]
     pair_errors = validate_pair_invariants(cases)
     split_errors = validate_split_contamination(cases)
+    analysis_errors = validate_analysis_linkage(cases)
 
     coverage = {"checked": False, "violations": []}
     if config_path and config_path.exists():
@@ -166,13 +169,13 @@ def validate_package(package_dir: Path, config_path: Path | None = None) -> dict
             "min_per_cell": min_count,
             "violations": [{"key": list(v.key), "count": v.count, "required": v.required} for v in violations],
         }
-    ok = not pair_errors and not split_errors and not coverage["violations"]
+    ok = not pair_errors and not split_errors and not analysis_errors and not coverage["violations"]
     return {
         "ok": ok,
         "templates": len(templates),
         "cases": len(cases),
         "pair_errors": pair_errors,
         "split_errors": split_errors,
+        "analysis_errors": analysis_errors,
         "coverage": coverage,
     }
-

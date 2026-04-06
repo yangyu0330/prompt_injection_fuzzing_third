@@ -32,3 +32,21 @@ ko_mutation_focus:
     language: ko
     attack_family: ko_native_mutation_layer
   min_per_cell: 1
+
+p0_stage_role:
+  required_dims:
+    - language
+    - source_stage
+    - source_role
+    - expected_interpretation
+  min_per_cell: 1
+
+p1_replay_tool_transition:
+  required_dims:
+    - turn_mode
+    - source_stage
+    - entry_point
+    - attack_family
+  filters:
+    turn_mode: multi_turn
+  min_per_cell: 1

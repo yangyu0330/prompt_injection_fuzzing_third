@@ -56,6 +56,18 @@ recipes:
   MR-CONFIRM-BYPASS-001:
     family: confirmation_bypass_framing
     rule: "<CONFIRMATION_BYPASS_FRAMING_PLACEHOLDER>"
+  MR-P1-REPLAY-001:
+    family: delayed_replay_trigger
+    rule: "<DELAYED_REPLAY_TRIGGER_PLACEHOLDER>"
+  MR-P1-STRUCT-001:
+    family: structured_payload_function_call
+    rule: "<STRUCTURED_FUNCTION_CALL_POLICY_ABUSE_PLACEHOLDER>"
+  MR-P1-THRESH-001:
+    family: threshold_sweep_variant
+    rule: "<THRESHOLD_SWEEP_VARIANT_PLACEHOLDER>"
+  MR-P1-NORMAB-001:
+    family: normalization_ab_variant
+    rule: "<NORMALIZATION_AB_VARIANT_PLACEHOLDER>"
   MR-BENIGN-QUOTE-001:
     family: quote_wrapper
     rule: "<QUOTED_CONTEXT_PLACEHOLDER>"
