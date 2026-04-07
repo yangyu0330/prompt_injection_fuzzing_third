@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field
 SplitName = Literal["dev_calibration", "heldout_static", "adaptive", "benign_hard_negative"]
 # Keep source stage permissive for backward compatibility across legacy/new values.
 SourceStage = str
+SourceRole = str
+ExpectedInterpretation = str
 TurnMode = Literal["single_turn", "multi_turn"]
 EnforcementMode = Literal["allow", "annotate", "mask", "block"]
 AttackOrBenign = Literal["attack", "benign"]
@@ -39,6 +41,12 @@ class TemplateRecord(BaseModel):
     recommended_layer: list[str]
     semantic_equivalence_group: str
     allowed_mutation_families: list[str] = Field(default_factory=list)
+    supported_source_roles: list[str] = Field(default_factory=list)
+    supported_expected_interpretations: list[str] = Field(default_factory=list)
+    tool_transition_type: str = ""
+    replay_enabled: bool = False
+    delayed_trigger: bool = False
+    vendor_declared_support: list[str] = Field(default_factory=list)
     source_origin: str
     license_note: str
     redistribution_policy: str
@@ -52,11 +60,15 @@ class CaseRecord(BaseModel):
     case_id: str
     language: str
     paired_case_id: str | None = None
+    kr_en_pair_id: str = ""
+    benign_sibling_id: str = ""
     attack_or_benign: AttackOrBenign
     attack_family: str
     attack_subfamily: str
     directness: Literal["direct", "indirect"]
     source_stage: SourceStage
+    source_role: SourceRole = ""
+    expected_interpretation: ExpectedInterpretation = ""
     turn_mode: TurnMode
     entry_point: str
     carrier_context: str
@@ -95,6 +107,24 @@ class CaseRecord(BaseModel):
     paired_case_role: str = ""
     expected_guard_stage: str = ""
     execution_layer: str = ""
+    policy_requested: str = ""
+    detector_family: str = ""
+    failure_cause_code: str = ""
+    reason_codes: list[str] = Field(default_factory=list)
+    matched_rule_ids: list[str] = Field(default_factory=list)
+    decision_trace: list[str] = Field(default_factory=list)
+    config_fingerprint: str = ""
+    final_user_visible: str = ""
+    unsafe_tool_call: bool = False
+    partially_allowed: bool = False
+    partial_defense: bool = False
+    tool_transition_type: str = ""
+    replay_window: str = ""
+    delayed_injection_turn: int | None = None
+    structured_payload_type: str = ""
+    threshold_profile: str = ""
+    normalization_variant: str = ""
+    vendor_declared_support: list[str] = Field(default_factory=list)
 
 
 class RunRecord(BaseModel):
@@ -111,6 +141,8 @@ class RunRecord(BaseModel):
     run_seed: int
     language: str
     source_stage: SourceStage
+    source_role: SourceRole = ""
+    expected_interpretation: ExpectedInterpretation = ""
     turn_mode: TurnMode
     guardrail_toggle: Literal["on", "off"]
     enforcement_mode: EnforcementMode
@@ -155,6 +187,25 @@ class RunRecord(BaseModel):
     gateway_name: str = ""
     policy_mode: str = ""
     model_name: str = ""
+    policy_requested: str = ""
+    policy_executed: str = ""
+    raw_policy_action: Any = None
+    detector_family: str = ""
+    failure_cause_code: str = ""
+    reason_codes: list[str] = Field(default_factory=list)
+    matched_rule_ids: list[str] = Field(default_factory=list)
+    decision_trace: list[str] = Field(default_factory=list)
+    config_fingerprint: str = ""
+    final_user_visible: str = ""
+    unsafe_tool_call: bool = False
+    partially_allowed: bool = False
+    partial_defense: bool = False
+    tool_transition_type: str = ""
+    replay_turn_index: int | None = None
+    delayed_trigger_fired: bool = False
+    threshold_profile: str = ""
+    normalization_variant: str = ""
+    vendor_declared_supported: bool | None = None
 
 
 class TargetConfig(BaseModel):
@@ -198,6 +249,17 @@ class Scorecard(BaseModel):
     by_lang: dict[str, Any]
     latency: dict[str, Any]
     results: list[dict[str, Any]]
+    by_source_role: dict[str, Any] = Field(default_factory=dict)
+    by_expected_interpretation: dict[str, Any] = Field(default_factory=dict)
+    by_detector_family: dict[str, Any] = Field(default_factory=dict)
+    by_failure_cause_code: dict[str, Any] = Field(default_factory=dict)
+    by_policy_request_vs_execution: dict[str, Any] = Field(default_factory=dict)
+    by_raw_policy_action: dict[str, Any] = Field(default_factory=dict)
+    by_reason_code: dict[str, Any] = Field(default_factory=dict)
+    by_tool_transition: dict[str, Any] = Field(default_factory=dict)
+    by_config_sensitivity: dict[str, Any] = Field(default_factory=dict)
+    by_vendor_claim_gap: dict[str, Any] = Field(default_factory=dict)
+    by_final_user_visible: dict[str, Any] = Field(default_factory=dict)
     by_analysis_axis: dict[str, Any] = Field(default_factory=dict)
     by_primary_mutation: dict[str, Any] = Field(default_factory=dict)
     by_register_level: dict[str, Any] = Field(default_factory=dict)

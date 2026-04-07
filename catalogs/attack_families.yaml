@@ -19,3 +19,9 @@ families:
     directness: indirect
   ko_detector_guardrail_track:
     directness: direct
+  replay_trajectory_injection:
+    directness: indirect
+  structured_payload_misuse:
+    directness: indirect
+  config_sensitivity_probe:
+    directness: direct

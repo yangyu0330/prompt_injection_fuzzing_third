@@ -1,14 +1,44 @@
 canonical_fields:
   source_stage:
     allowed:
-      - INPUT
-      - OUTPUT
+      - input
+      - retrieval
+      - tool_input
+      - tool_output
+      - output
+      - replay
       - other
     aliases:
-      input: INPUT
-      INPUT: INPUT
-      output: OUTPUT
-      OUTPUT: OUTPUT
+      INPUT: input
+      OUTPUT: output
+      input: input
+      output: output
+      retrieval: retrieval
+      retrieved: retrieval
+      tool_input: tool_input
+      tool_output: tool_output
+      replay: replay
+  source_role:
+    allowed:
+      - user
+      - retrieved_doc
+      - tool_output
+      - memory_note
+      - assistant_quote
+      - system_note
+      - other
+    aliases:
+      user_input: user
+      retrieved_document: retrieved_doc
+      memory_summary: memory_note
+  expected_interpretation:
+    allowed:
+      - instruction
+      - data
+      - quoted_text
+      - translation_target
+      - analysis_target
+      - other
   execution_layer:
     allowed:
       - L1_guardrail_only
@@ -33,14 +63,85 @@ canonical_fields:
       - block
       - other
     aliases:
-      allow: allow
-      annotate: annotate
-      mask: mask
-      block: block
       ALLOW: allow
       ANNOTATE: annotate
       MASK: mask
       BLOCK: block
+  policy_execution:
+    allowed:
+      - allow
+      - annotate
+      - mask
+      - block
+      - partial_block
+      - other
+    aliases:
+      alert: annotate
+      alert_and_deny: block
+      deny: block
+      redact: mask
+      omit: mask
+      sanitize: mask
+      review: annotate
+      allow_with_warning: annotate
+      pass: allow
+  detector_family:
+    allowed:
+      - pattern
+      - classifier
+      - orchestration
+      - replay_audit
+      - other
+  failure_cause_code:
+    allowed:
+      - normalization_miss
+      - policy_miss
+      - execution_gap
+      - tool_authority_confusion
+      - long_context_loss
+      - threshold_misconfig
+      - none
+      - other
+  reason_code_category:
+    allowed:
+      - detected_by_local_rule
+      - policy_denied
+      - policy_annotated
+      - tool_escalation_blocked
+      - tool_escalation_allowed
+      - replay_trigger
+      - none
+      - other
+  tool_transition_type:
+    allowed:
+      - none
+      - user_to_tool
+      - tool_to_tool
+      - tool_to_user
+      - memory_to_tool
+      - replay_to_tool
+      - other
+  final_user_visible:
+    allowed:
+      - safe_refusal
+      - safe_task_only
+      - partial_response
+      - tool_call
+      - leak
+      - full_follow
+      - other
+  config_sensitivity:
+    allowed:
+      - stable
+      - sensitive
+      - unknown
+      - other
+  vendor_claim_gap:
+    allowed:
+      - claim_match
+      - claim_gap
+      - not_declared
+      - other
   analysis_axis:
     allowed:
       - normalization_failure
@@ -57,6 +158,10 @@ canonical_fields:
       - roleplay_persona_hijack
       - parameter_policy_manipulation
       - structured_wrapper_injection
+      - structured_payload_function_call
+      - delayed_replay_trigger
+      - threshold_sweep_variant
+      - normalization_ab_variant
       - tool_hierarchy_abuse
       - quote_wrapper
       - code_block_wrapper
