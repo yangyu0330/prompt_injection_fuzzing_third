@@ -189,6 +189,7 @@ class RunRecord(BaseModel):
     model_name: str = ""
     policy_requested: str = ""
     policy_executed: str = ""
+    raw_policy_action: Any = None
     detector_family: str = ""
     failure_cause_code: str = ""
     reason_codes: list[str] = Field(default_factory=list)
@@ -253,6 +254,7 @@ class Scorecard(BaseModel):
     by_detector_family: dict[str, Any] = Field(default_factory=dict)
     by_failure_cause_code: dict[str, Any] = Field(default_factory=dict)
     by_policy_request_vs_execution: dict[str, Any] = Field(default_factory=dict)
+    by_raw_policy_action: dict[str, Any] = Field(default_factory=dict)
     by_reason_code: dict[str, Any] = Field(default_factory=dict)
     by_tool_transition: dict[str, Any] = Field(default_factory=dict)
     by_config_sensitivity: dict[str, Any] = Field(default_factory=dict)

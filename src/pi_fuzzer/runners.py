@@ -62,6 +62,7 @@ def _base_run_record(
         policy_mode=policy_mode,
         policy_requested=normalize_policy_mode(case.policy_requested or enforcement_mode),
         policy_executed=policy_executed,
+        raw_policy_action=enforcement_mode,
         detector_family=case.detector_family or "",
         failure_cause_code=case.failure_cause_code or "",
         reason_codes=list(case.reason_codes),
@@ -75,7 +76,7 @@ def _base_run_record(
         tool_transition_type=normalize_tool_transition_type(case.tool_transition_type or ""),
         threshold_profile=case.threshold_profile or "default",
         normalization_variant=case.normalization_variant or "baseline",
-        vendor_declared_supported=True if case.vendor_declared_support else None,
+        vendor_declared_supported=None,
         engine_name=engine_name,
         gateway_name=gateway_name,
         model_name=model_name,
@@ -207,6 +208,37 @@ def _default_policy_executed(record: RunRecord) -> str:
     return "allow"
 
 
+def _canonical_policy_execution_from_raw(raw_policy_action: Any) -> str:
+    candidate = ""
+    if isinstance(raw_policy_action, str):
+        candidate = raw_policy_action
+    elif isinstance(raw_policy_action, dict):
+        for key in ("action", "policy_action", "decision", "mode", "result"):
+            value = raw_policy_action.get(key)
+            if isinstance(value, str) and value.strip():
+                candidate = value
+                break
+        if not candidate:
+            candidate = json.dumps(raw_policy_action, ensure_ascii=False, sort_keys=True)
+    elif isinstance(raw_policy_action, list):
+        for item in raw_policy_action:
+            if isinstance(item, str) and item.strip():
+                candidate = item
+                break
+            if isinstance(item, dict):
+                nested = _canonical_policy_execution_from_raw(item)
+                if nested and nested != "other":
+                    candidate = nested
+                    break
+        if not candidate:
+            candidate = json.dumps(raw_policy_action, ensure_ascii=False)
+    elif raw_policy_action is None:
+        candidate = ""
+    else:
+        candidate = str(raw_policy_action)
+    return normalize_policy_execution(candidate)
+
+
 def _populate_common_analysis_fields(
     record: RunRecord,
     case: CaseRecord,
@@ -226,6 +258,8 @@ def _populate_common_analysis_fields(
     mapped_expected_interp = mapped.get("expected_interpretation")
     mapped_policy_requested = mapped.get("policy_requested")
     mapped_policy_executed = mapped.get("policy_executed")
+    mapped_raw_policy_action = mapped.get("raw_policy_action")
+    mapped_policy_action = mapped.get("policy_action")
     mapped_detector_family = mapped.get("detector_family")
     mapped_failure_cause = mapped.get("failure_cause_code")
     mapped_reason_codes = mapped.get("reason_codes")
@@ -302,11 +336,17 @@ def _populate_common_analysis_fields(
         record.response_disposition = "full_follow"
     else:
         record.response_disposition = "safe_task_only"
-    record.policy_executed = normalize_policy_execution(
-        str(mapped_policy_executed)
-        if isinstance(mapped_policy_executed, str) and mapped_policy_executed
-        else _default_policy_executed(record)
-    )
+    raw_policy_action: Any
+    if mapped_raw_policy_action is not None:
+        raw_policy_action = mapped_raw_policy_action
+    elif mapped_policy_action is not None:
+        raw_policy_action = mapped_policy_action
+    elif mapped_policy_executed is not None:
+        raw_policy_action = mapped_policy_executed
+    else:
+        raw_policy_action = _default_policy_executed(record)
+    record.raw_policy_action = raw_policy_action
+    record.policy_executed = _canonical_policy_execution_from_raw(raw_policy_action)
     record.detector_family = str(mapped_detector_family) if isinstance(mapped_detector_family, str) and mapped_detector_family else (
         case.detector_family or ("pattern" if (record.detected_pre or record.detected_post) else "orchestration")
     )
@@ -374,8 +414,6 @@ def _populate_common_analysis_fields(
         record.normalization_variant = case.normalization_variant or ("changed" if record.normalization_changed else "baseline")
     if mapped_vendor_declared is not None:
         record.vendor_declared_supported = bool(mapped_vendor_declared)
-    elif record.vendor_declared_supported is None and case.vendor_declared_support:
-        record.vendor_declared_supported = True
     if mapped_failure_stage:
         record.failure_stage = str(mapped_failure_stage)
     else:

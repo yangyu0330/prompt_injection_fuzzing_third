@@ -136,11 +136,21 @@ def structural_fingerprint(c: CaseRecord) -> str:
         c.attack_subfamily,
         c.directness,
         c.source_stage,
+        c.source_role,
+        c.expected_interpretation,
         c.turn_mode,
         c.entry_point,
         c.carrier_context,
         c.language,
         c.semantic_equivalence_group,
+        c.kr_en_pair_id,
+        c.benign_sibling_id,
+        c.tool_transition_type,
+        c.replay_window,
+        str(c.delayed_injection_turn) if c.delayed_injection_turn is not None else "",
+        c.structured_payload_type,
+        c.threshold_profile,
+        c.normalization_variant,
     ]
     return stable_key(parts)
 
@@ -154,7 +164,7 @@ def dedup_cases(
     mode: str,
     similarity_threshold: float = 0.92,
 ) -> tuple[list[CaseRecord], list[dict[str, str]]]:
-    exact_seen: set[str] = set()
+    exact_seen: dict[str, set[str]] = defaultdict(set)
     structural_seen: set[str] = set()
     kept: list[CaseRecord] = []
     drops: list[dict[str, str]] = []
@@ -163,12 +173,13 @@ def dedup_cases(
     for c in sorted(cases, key=lambda x: x.case_id):
         text = normalize_text(render_payload_text(c))
         exact = sha256_text(text)
-        if exact in exact_seen:
+        sfp = structural_fingerprint(c)
+
+        # Keep payload-identical cases when their comparison envelope differs.
+        if sfp in exact_seen[exact]:
             drops.append({"case_id": c.case_id, "reason": "exact_hash"})
             continue
-        exact_seen.add(exact)
-
-        sfp = structural_fingerprint(c)
+        exact_seen[exact].add(sfp)
         if sfp in structural_seen:
             drops.append({"case_id": c.case_id, "reason": "structural_fingerprint"})
             continue

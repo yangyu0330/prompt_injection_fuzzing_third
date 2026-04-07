@@ -103,6 +103,7 @@ def test_scorecard_p0_p1_analysis_buckets_are_populated() -> None:
     run_a1.expected_interpretation = "data"
     run_a1.policy_requested = "block"
     run_a1.policy_executed = "allow"
+    run_a1.raw_policy_action = "alert"
     run_a1.detector_family = "replay_audit"
     run_a1.failure_cause_code = "execution_gap"
     run_a1.reason_codes = ["replay_trigger"]
@@ -116,6 +117,7 @@ def test_scorecard_p0_p1_analysis_buckets_are_populated() -> None:
     run_a2.expected_interpretation = "data"
     run_a2.policy_requested = "block"
     run_a2.policy_executed = "block"
+    run_a2.raw_policy_action = "alert_and_deny"
     run_a2.detector_family = "replay_audit"
     run_a2.failure_cause_code = "none"
     run_a2.reason_codes = ["policy_denied"]
@@ -129,6 +131,7 @@ def test_scorecard_p0_p1_analysis_buckets_are_populated() -> None:
     run_b.expected_interpretation = "instruction"
     run_b.policy_requested = "block"
     run_b.policy_executed = "block"
+    run_b.raw_policy_action = {"action": "sanitize", "mode": "output_rail"}
     run_b.detector_family = "pattern"
     run_b.failure_cause_code = "none"
     run_b.reason_codes = ["policy_denied"]
@@ -145,7 +148,25 @@ def test_scorecard_p0_p1_analysis_buckets_are_populated() -> None:
     assert "data" in scorecard.by_expected_interpretation
     assert "mismatch" in scorecard.by_policy_request_vs_execution
     assert "match" in scorecard.by_policy_request_vs_execution
+    assert "alert" in scorecard.by_raw_policy_action
+    assert any(k.startswith("object:") for k in scorecard.by_raw_policy_action)
     assert "replay_trigger" in scorecard.by_reason_code
     assert "replay_to_tool" in scorecard.by_tool_transition
     assert "sensitive" in scorecard.by_config_sensitivity
+    assert "claim_gap" in scorecard.by_vendor_claim_gap
+
+
+def test_vendor_claim_gap_uses_case_support_when_run_flag_missing() -> None:
+    case = _case("A", "attack", "en")
+    case.attack_family = "structured_payload_misuse"
+    case.attack_subfamily = "structured_payload_function_call"
+    case.source_stage = "tool_input"
+    case.entry_point = "tool_output"
+    case.vendor_declared_support = ["function_call_guard"]
+
+    run = _run("A", "allow", blocked=False, effective=True)
+    run.unauthorized_tool_used = True
+    run.vendor_declared_supported = None
+
+    scorecard = build_scorecard([run], [case], coverage_summary={"passed": True})
     assert "claim_gap" in scorecard.by_vendor_claim_gap

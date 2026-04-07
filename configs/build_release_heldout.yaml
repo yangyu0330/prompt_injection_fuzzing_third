@@ -24,9 +24,8 @@ dedup:
 
 coverage_gate:
   enabled: true
-  require_cells:
-    - language
-    - source_stage
-    - directness
-    - attack_family
-  min_per_cell: 1
+  matrix_path: catalogs/coverage_matrix.yaml
+  profiles:
+    - release_default
+    - p0_stage_role
+    - p1_replay_tool_transition

@@ -66,6 +66,7 @@ def write_scorecard_markdown(scorecard: Scorecard, out_path: Path) -> None:
     _render_bucket_table(lines, "By Failure Cause Code", s.get("by_failure_cause_code", {}))
     _render_bucket_table(lines, "By Policy Mode", s.get("by_policy_mode", {}))
     _render_bucket_table(lines, "By Policy Request vs Execution", s.get("by_policy_request_vs_execution", {}))
+    _render_bucket_table(lines, "By Raw Policy Action", s.get("by_raw_policy_action", {}))
     _render_bucket_table(lines, "By Reason Code", s.get("by_reason_code", {}))
     _render_bucket_table(lines, "By Tool Transition", s.get("by_tool_transition", {}))
     _render_bucket_table(lines, "By Final User Visible", s.get("by_final_user_visible", {}))

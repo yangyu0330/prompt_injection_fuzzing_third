@@ -75,6 +75,16 @@ canonical_fields:
       - block
       - partial_block
       - other
+    aliases:
+      alert: annotate
+      alert_and_deny: block
+      deny: block
+      redact: mask
+      omit: mask
+      sanitize: mask
+      review: annotate
+      allow_with_warning: annotate
+      pass: allow
   detector_family:
     allowed:
       - pattern

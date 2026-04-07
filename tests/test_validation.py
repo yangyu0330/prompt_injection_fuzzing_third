@@ -1,6 +1,8 @@
 from pi_fuzzer.models import CaseRecord
 from pi_fuzzer.validation import (
+    dedup_cases,
     enforce_min_cell_coverage,
+    structural_fingerprint,
     validate_benign_sibling_and_contrast,
     validate_kr_en_pair_links,
     validate_source_role_stage_coverage,
@@ -75,3 +77,34 @@ def test_source_role_stage_validation_requires_interpretation() -> None:
     row.source_role = "tool_output"
     row.expected_interpretation = "data"
     assert validate_source_role_stage_coverage([row]) == []
+
+
+def test_structural_fingerprint_includes_role_and_replay_axes() -> None:
+    base = _case("F1", "ko", "replay", "indirect", "tool_agent_misuse")
+    base.source_role = "memory_note"
+    base.expected_interpretation = "data"
+    base.kr_en_pair_id = "PAIR-A"
+    base.benign_sibling_id = "B1"
+    base.tool_transition_type = "replay_to_tool"
+    base.replay_window = "window_4"
+    base.delayed_injection_turn = 3
+
+    changed = base.model_copy(update={"source_role": "tool_output"})
+    assert structural_fingerprint(base) != structural_fingerprint(changed)
+
+
+def test_dedup_keeps_same_payload_when_envelope_differs() -> None:
+    a = _case("D1", "ko", "replay", "indirect", "tool_agent_misuse")
+    b = _case("D2", "ko", "replay", "indirect", "tool_agent_misuse")
+    a.source_role = "memory_note"
+    b.source_role = "tool_output"
+    a.expected_interpretation = "data"
+    b.expected_interpretation = "data"
+    a.untrusted_content = "<SAME_PAYLOAD>"
+    b.untrusted_content = "<SAME_PAYLOAD>"
+    a.semantic_equivalence_group = "SEG-D1"
+    b.semantic_equivalence_group = "SEG-D1"
+
+    kept, drops = dedup_cases([a, b], mode="structured_only")
+    assert {c.case_id for c in kept} == {"D1", "D2"}
+    assert drops == []

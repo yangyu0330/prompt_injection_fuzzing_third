@@ -40,6 +40,27 @@ p0_stage_role:
     - source_role
     - expected_interpretation
   min_per_cell: 1
+  required_values:
+    source_role:
+      values:
+        - user
+        - retrieved_doc
+        - tool_output
+      min_per_value: 1
+    expected_interpretation:
+      values:
+        - instruction
+        - data
+      min_per_value: 1
+  required_combinations:
+    - source_stage: input
+      source_role: user
+      expected_interpretation: instruction
+      min_count: 1
+    - source_stage: tool_input
+      source_role: tool_output
+      expected_interpretation: data
+      min_count: 1
 
 p1_replay_tool_transition:
   required_dims:
@@ -50,3 +71,30 @@ p1_replay_tool_transition:
   filters:
     turn_mode: multi_turn
   min_per_cell: 1
+  required_values:
+    source_stage:
+      values:
+        - replay
+        - tool_input
+      min_per_value: 1
+    entry_point:
+      values:
+        - memory_or_summary
+        - tool_output
+      min_per_value: 1
+    tool_transition_type:
+      values:
+        - replay_to_tool
+        - user_to_tool
+      min_per_value: 1
+  required_combinations:
+    - turn_mode: multi_turn
+      source_stage: replay
+      entry_point: memory_or_summary
+      attack_family: replay_trajectory_injection
+      min_count: 1
+    - turn_mode: multi_turn
+      source_stage: tool_input
+      entry_point: tool_output
+      attack_family: structured_payload_misuse
+      min_count: 1
