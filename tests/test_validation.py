@@ -6,6 +6,8 @@ from pi_fuzzer.validation import (
     validate_benign_sibling_and_contrast,
     validate_kr_en_pair_links,
     validate_source_role_stage_coverage,
+    validate_split_contamination,
+    validate_template_references,
 )
 
 
@@ -108,3 +110,22 @@ def test_dedup_keeps_same_payload_when_envelope_differs() -> None:
     kept, drops = dedup_cases([a, b], mode="structured_only")
     assert {c.case_id for c in kept} == {"D1", "D2"}
     assert drops == []
+
+
+def test_validate_template_references_detects_unknown_template_id() -> None:
+    row = _case("T1", "ko", "input", "direct", "direct_user_injection")
+    row.template_id = "TMP-UNKNOWN"
+    errors = validate_template_references([row], {"TMP"})
+    assert errors == ["T1: unknown template_id TMP-UNKNOWN"]
+
+
+def test_split_contamination_uses_template_fallback_for_empty_group() -> None:
+    a = _case("S1", "ko", "input", "direct", "direct_user_injection")
+    b = _case("S2", "en", "input", "direct", "direct_user_injection")
+    a.semantic_equivalence_group = ""
+    b.semantic_equivalence_group = ""
+    a.template_id = "TMP-A"
+    b.template_id = "TMP-B"
+    a.split = "heldout_static"
+    b.split = "adaptive"
+    assert validate_split_contamination([a, b]) == []

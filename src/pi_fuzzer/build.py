@@ -14,6 +14,7 @@ from .validation import (
     validate_analysis_linkage,
     validate_pair_invariants,
     validate_split_contamination,
+    validate_template_references,
 )
 
 
@@ -262,6 +263,11 @@ def build_package(config_path: Path, out_dir: Path, project_root: Path) -> dict[
     case_sources = [project_root / Path(p) for p in cfg.get("case_sources", [])] or _default_case_sources(project_root)
     templates = _load_templates(template_sources)
     cases = _load_cases(case_sources)
+    template_ids = {t.template_id for t in templates}
+    template_errors = validate_template_references(cases, template_ids)
+    if template_errors:
+        msgs = "\n".join(template_errors)
+        raise ValueError(f"Validation failed:\n{msgs}")
 
     seed = int(build_cfg.get("seed", 20260403))
     cases = _assign_splits(cases, seed=seed, targets=split_cfg)
@@ -334,6 +340,8 @@ def build_package(config_path: Path, out_dir: Path, project_root: Path) -> dict[
 def validate_package(package_dir: Path, config_path: Path | None = None) -> dict[str, Any]:
     templates = [TemplateRecord(**row) for row in read_jsonl(package_dir / "templates.jsonl")]
     cases = [CaseRecord(**row) for row in read_jsonl(package_dir / "cases.jsonl")]
+    template_ids = {t.template_id for t in templates}
+    template_errors = validate_template_references(cases, template_ids)
     pair_errors = validate_pair_invariants(cases)
     split_errors = validate_split_contamination(cases)
     analysis_errors = validate_analysis_linkage(cases)
@@ -364,11 +372,12 @@ def validate_package(package_dir: Path, config_path: Path | None = None) -> dict
             ],
             "violations": violations,
         }
-    ok = not pair_errors and not split_errors and not analysis_errors and not coverage["violations"]
+    ok = not template_errors and not pair_errors and not split_errors and not analysis_errors and not coverage["violations"]
     return {
         "ok": ok,
         "templates": len(templates),
         "cases": len(cases),
+        "template_errors": template_errors,
         "pair_errors": pair_errors,
         "split_errors": split_errors,
         "analysis_errors": analysis_errors,

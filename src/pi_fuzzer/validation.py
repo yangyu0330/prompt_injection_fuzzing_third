@@ -8,6 +8,14 @@ from .models import CaseRecord, CoverageViolation
 from .text_utils import cosine_similarity, normalize_text, sha256_text, stable_key, token_counts
 
 
+def validate_template_references(cases: list[CaseRecord], template_ids: set[str]) -> list[str]:
+    errors: list[str] = []
+    for c in cases:
+        if c.template_id not in template_ids:
+            errors.append(f"{c.case_id}: unknown template_id {c.template_id}")
+    return errors
+
+
 def validate_pair_invariants(cases: list[CaseRecord]) -> list[str]:
     errors: list[str] = []
     idx = {c.case_id: c for c in cases}
@@ -38,7 +46,8 @@ def validate_split_contamination(cases: list[CaseRecord]) -> list[str]:
     errors: list[str] = []
     by_group: dict[str, set[str]] = defaultdict(set)
     for c in cases:
-        by_group[c.semantic_equivalence_group].add(c.split)
+        group_key = c.semantic_equivalence_group or c.template_id
+        by_group[group_key].add(c.split)
     for group, splits in by_group.items():
         if len(splits) > 1:
             errors.append(f"{group}: split contamination {sorted(splits)}")

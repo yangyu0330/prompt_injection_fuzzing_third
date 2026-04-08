@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Annotated
+from typing import Any
 
 import typer
 
@@ -24,6 +25,23 @@ def _project_root() -> Path:
 
 def _split_csv(value: str) -> list[str]:
     return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def _resolve_score_coverage_summary(package: Path, config: Path | None) -> dict[str, Any]:
+    if config is None:
+        return {
+            "checked": False,
+            "passed": None,
+            "note": "coverage_not_evaluated_in_score",
+        }
+    if not config.exists():
+        raise typer.BadParameter(f"config not found: {config}")
+
+    validation = validate_package(package_dir=package, config_path=config)
+    coverage = dict(validation.get("coverage", {}))
+    coverage["passed"] = not bool(coverage.get("violations"))
+    coverage["validation_ok"] = bool(validation.get("ok", False))
+    return coverage
 
 
 @app.command("build")
@@ -107,11 +125,13 @@ def cmd_run(
 def cmd_score(
     runs: Annotated[list[Path], typer.Option("--runs")],
     package: Annotated[Path, typer.Option("--package")],
+    config: Annotated[Path | None, typer.Option("--config")] = None,
     out: Annotated[Path, typer.Option("--out")] = Path("reports/scorecard.json"),
 ) -> None:
     _templates, cases, manifest = load_package(package)
     run_rows = load_runs(runs)
-    scorecard = build_scorecard(run_rows, cases, coverage_summary={"passed": True}, package_meta=manifest)
+    coverage_summary = _resolve_score_coverage_summary(package, config)
+    scorecard = build_scorecard(run_rows, cases, coverage_summary=coverage_summary, package_meta=manifest)
     write_scorecard_json(scorecard, out)
     typer.echo(f"scorecard -> {out}")
 
@@ -166,4 +186,3 @@ def cmd_dispatch_http(
 
 if __name__ == "__main__":
     app()
-

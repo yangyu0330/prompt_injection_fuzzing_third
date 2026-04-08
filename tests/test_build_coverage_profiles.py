@@ -155,3 +155,51 @@ def test_validate_package_uses_release_split_scope_for_coverage(tmp_path: Path) 
     result = validate_package(package_dir=package_dir, config_path=cfg_path)
     assert result["ok"] is True
     assert result["coverage"]["split_scope"] == ["adaptive", "heldout_static"]
+
+
+def test_validate_package_detects_unknown_template_reference(tmp_path: Path) -> None:
+    package_dir = tmp_path / "pkg"
+    package_dir.mkdir(parents=True, exist_ok=True)
+
+    template = TemplateRecord(
+        template_id="TMP-1",
+        template_kind="diagnostic_attack",
+        attack_or_benign="attack",
+        attack_family="direct_user_injection",
+        attack_subfamily="x",
+        directness="direct",
+        source_stage="input",
+        turn_mode="single_turn",
+        supported_entry_points=["user_prompt"],
+        supported_carriers=["plain_chat"],
+        user_goal_skeleton="<U>",
+        trusted_instruction_skeleton="<T>",
+        untrusted_content_skeleton="<X>",
+        protected_asset=["policy"],
+        forbidden_action=["deny"],
+        expected_safe_behavior="<E>",
+        tool_scope="none",
+        oracle_type=["task_checker"],
+        severity="S2",
+        recommended_layer=["L1"],
+        semantic_equivalence_group="SEG-TMP",
+        source_origin="test",
+        license_note="internal_curated",
+        redistribution_policy="release_export_allowed",
+    )
+    (package_dir / "templates.jsonl").write_text(
+        json.dumps(template.model_dump(), ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    row = _case("A", source_stage="input", entry_point="user_prompt")
+    row.template_id = "TMP-DOES-NOT-EXIST"
+    (package_dir / "cases.jsonl").write_text(
+        json.dumps(row.model_dump(), ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    result = validate_package(package_dir=package_dir)
+    assert result["ok"] is False
+    assert len(result["template_errors"]) == 1
+    assert "unknown template_id TMP-DOES-NOT-EXIST" in result["template_errors"][0]
