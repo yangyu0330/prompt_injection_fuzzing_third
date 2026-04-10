@@ -1,4 +1,10 @@
-# Generator 평가비교묶음 설계
+# Generator 평가비교묶음 설계 (수정: 2026-04-10 16:35:13 KST)
+
+## 상태
+
+- 현재 generator/bulk 구현은 비교 해석용 링크 필드 `kr_en_pair_id`, `contrast_group_id`, `benign_sibling_id`, `paired_case_role`를 실제 row에 채우고 `validate_analysis_linkage()`로 검증한다.
+- contrast policy가 있는 family는 generator 단계에서 benign control과 bilingual pair를 함께 만들 수 있다.
+- 다만 비교 묶음을 별도 report artifact나 planner 단위로 승격하는 작업은 아직 하지 않았다. 현재는 linkage 기반 해석 규칙 문서로 보는 것이 맞다.
 
 ## 1. 문서 목적
 

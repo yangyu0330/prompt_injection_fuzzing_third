@@ -1,4 +1,11 @@
-# Generator 대량생성 구현 계획
+# Generator 대량생성 구현 계획 (수정: 2026-04-10 16:35:13 KST)
+
+## 상태
+
+- 현재 코드 기준으로 1차 bulk mode는 이미 구현돼 있다.
+- 구현 범위에는 `mode=bulk`, `--resume`, `output.out_dir`/`output.export_jsonl`, `manifest.json`, `summary.json`, `pass_reports/`, `indexes/`, `shards/`, adaptive seed-derivation planner, config probe pair planner, build-equivalent preflight, refill family 선택이 포함된다.
+- 이 문서는 구현 순서 메모를 보존한 문서다. 현재 동작 계약은 코드와 운영 문서를 우선하고, 아래 본문은 왜 이런 구조로 구현했는지 추적하기 위한 참고 문맥으로 읽는 편이 맞다.
+- 현재 `summary.json`과 pass report의 `family_shortfall`은 refill 힌트다. run status는 global `survivor_target`과 deficit 상태를 기준으로 계산되며, family shortfall이 남아 있어도 전체 status가 `success`일 수 있다.
 
 ## 1. 문서 목적
 

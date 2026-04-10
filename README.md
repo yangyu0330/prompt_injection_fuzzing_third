@@ -1,4 +1,4 @@
-# PI Fuzzer 현재 상태 가이드 (수정: 2026-04-08 18:46:03 KST)
+# PI Fuzzer 현재 상태 가이드 (수정: 2026-04-10 16:35:13 KST)
 
 `PI Fuzzer`는 프롬프트 인젝션 벤치마크 패키지를 빌드하고, 패키지를 검증하고, L1/L2/L3 기준 실행 결과를 스코어링과 리포팅까지 이어서 다루는 경량 툴킷이다. 현재 저장소의 기본 샘플 카탈로그는 공개 배포용 placeholder-only 원칙을 유지하며, 실제 공격 페이로드 코퍼스를 싣지 않는다.
 
@@ -7,6 +7,7 @@
 - `build`: `catalogs/sample_templates.jsonl`, `catalogs/sample_cases.jsonl`을 읽어 템플릿, 케이스, dedup drop, manifest를 패키지로 생성한다.
 - `validate`: template 참조 무결성, pair invariant, split contamination, KR-EN link, benign sibling/contrast, source-role/stage linkage, coverage profile 위반 여부를 점검한다.
 - `ingest-public`: `bipia`, `llmail-inject`, `injecagent`, `agentdojo`, `pint-xstest` 입력을 내부 스키마로 정규화한다.
+- `generate-cases`: template와 generator config를 읽어 `CaseRecord`를 deterministic하게 전개한다. `mode=mvp`는 단일 JSONL export를 만들고, `mode=bulk`는 shard/index/pass report를 포함한 재개 가능 배치 출력을 만든다.
 - `run`: 현재 실행 가능한 레이어는 `L1`, `L2`, `L3`다. `L3`는 로컬 시나리오 타깃으로 바로 실행할 수 있고, `L1`/`L2`는 HTTP 타깃 설정도 포함한다.
 - `score`: run JSONL을 읽어 detection, outcome, gateway loss, 정책 실행 불일치, replay/tool-transition, vendor claim gap 등을 집계한다.
 - `report`: scorecard JSON을 Markdown/CSV로 변환한다.
@@ -26,6 +27,11 @@
 - replay/tool-transition 축: `source_stage=replay`, `tool_transition_type=replay_to_tool`, `replay_window`, `delayed_injection_turn`, `replay_turn_index`, `delayed_trigger_fired`가 스키마와 샘플 케이스에 반영되어 있다.
 - structured payload/tool misuse 축: `structured_payload_type`, `tool_input`, `tool_output`, `approval_form` 계열 시나리오가 샘플 템플릿/케이스와 coverage profile에 반영되어 있다.
 - config sensitivity 준비 축: `threshold_profile`, `normalization_variant`, `config_fingerprint`, `vendor_declared_support`, `vendor_declared_supported`가 스키마와 scorecard 집계에 반영되어 있다.
+
+- Generator 구현
+- `pifuzz generate-cases`가 `mode=mvp`와 `mode=bulk`를 모두 지원한다.
+- `mode=bulk`는 `catalogs/generated_bulk/` 아래 `manifest.json`, `summary.json`, `pass_reports/`, `indexes/`, `shards/`를 남기고, build 입력용 합본 export는 `catalogs/generated_cases.jsonl`에 쓴다.
+- generated build config는 `configs/build_generated_dev.yaml`이며 coverage profile `bulk_full_family_set`, `repo_surface_axes`, `config_probe_axes`를 포함한다.
 
 ## 빠른 시작
 
@@ -56,6 +62,22 @@ pifuzz build --config configs/build_generated_dev.yaml --out packages/dev_genera
 ```
 
 주의: generator output의 `split`은 임시값이고, 최종 split은 build 단계에서 다시 재배정된다.
+
+### 2-2. Generator Bulk 실행 (opt-in)
+
+```bash
+pifuzz generate-cases --templates catalogs/sample_templates.jsonl --config configs/generator_bulk.yaml --out catalogs/generated_cases.jsonl
+```
+
+bulk mode는 내부 운영 산출물을 `catalogs/generated_bulk/`에 남긴다.
+
+- `manifest.json`: effective config/build fingerprint, shard 목록, index count
+- `summary.json`: 최종 status, completed pass, survivor 수, deficit 요약
+- `pass_reports/pass-XXXX.json`: pass별 input/survivor/family shortfall/deficit 요약
+- `indexes/*.jsonl`: bundle key, exact hash, structural fingerprint 색인
+- `shards/family=.../part-XXXX.jsonl`: family별 committed shard
+
+`--resume`은 `generator.mode=bulk`일 때만 허용된다.
 
 ### 3. 패키지 검증
 
@@ -120,6 +142,7 @@ pifuzz report --score reports/scorecard.json --md reports/report.md --csv report
 - `required_combinations`는 특정 조합이 반드시 존재해야 하는 cell을 강제한다.
 - `required_dims + min_per_cell`만으로는 이미 관측된 cell의 최소 개수만 검사한다. 비어 있는 cartesian 조합까지 자동으로 강제하지는 않으며, 그 경우 `required_combinations` 또는 `enforce_cartesian`이 추가로 필요하다.
 - 현재 기본 build config는 `release_default`, `p0_stage_role`, `p1_replay_tool_transition` 세 프로파일을 사용한다.
+- generated build config인 `configs/build_generated_dev.yaml`은 여기에 `bulk_full_family_set`, `repo_surface_axes`, `config_probe_axes`를 추가한다.
 - release mode coverage는 `heldout_static`, `adaptive` split만 대상으로 적용된다. dev validation은 모든 split을 본다.
 
 ## 샘플 카탈로그 현재 상태

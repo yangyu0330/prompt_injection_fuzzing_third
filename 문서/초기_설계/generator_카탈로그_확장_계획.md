@@ -1,4 +1,11 @@
-# Generator 카탈로그 확장 계획
+# Generator 카탈로그 확장 계획 (수정: 2026-04-10 16:35:13 KST)
+
+## 상태
+- 현재 코드 기준으로 이 문서의 핵심 범위는 반영돼 있다.
+- `configs/generator_bulk.yaml`에는 12개 attack family가 모두 들어가 있고, `adaptive_fuzzing` seed-derivation planner와 `config_sensitivity_probe` probe pair planner가 구현돼 있다.
+- `catalogs/coverage_matrix.yaml`에는 `bulk_full_family_set`, `repo_surface_axes`, `config_probe_axes`가 추가돼 있고, `configs/build_generated_dev.yaml`와 `refill.driving_profiles`가 이를 사용한다.
+- `catalogs/sample_templates.jsonl`, `catalogs/mutation_recipes.yaml`, `tests/test_generator_catalog_expansion.py`, `tests/test_generator_bulk.py`, `tests/test_generator_bulk_report.py`, `tests/test_build_coverage_profiles.py`가 문서 범위에 맞게 같이 갱신돼 있다.
+- 추가로 현재 구현은 `contrast_group_id`, `primary_mutation`, `secondary_mutations`, `mutation_family`를 structural fingerprint에 포함시켜 bulk dedup index와 build dedup envelope를 맞춘다.
 
 ## Summary
 - 목표는 `bulk`가 현재 2개 family에서 멈추지 않고, `attack_families.yaml`의 12개 attack family를 모두 생성 대상으로 다루게 만드는 것이다.

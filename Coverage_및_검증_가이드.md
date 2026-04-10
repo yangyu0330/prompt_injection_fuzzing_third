@@ -1,4 +1,4 @@
-# Coverage 및 검증 가이드 (수정: 2026-04-08 18:46:03 KST)
+# Coverage 및 검증 가이드 (수정: 2026-04-10 16:35:13 KST)
 
 이 문서는 build gate, validation, dedup, coverage enforcement를 운영 관점에서 설명한다. 현재 구현 기준 설명이며, 존재하지 않는 검사 단계는 포함하지 않는다.
 
@@ -32,6 +32,13 @@ load templates/cases
    - named profile 목록을 순서대로 적용한다.
 6. export
    - `templates.jsonl`, `cases.jsonl`, `dedup_drops.jsonl`, `manifest.json`을 쓴다.
+
+## 1.1 generator preflight와 build의 관계
+
+- `pifuzz generate-cases`는 `src/pi_fuzzer/generator_common.py`의 build-equivalent preflight를 통해 build와 같은 순서인 `split 재배정 -> dedup -> coverage gate`를 미리 돌릴 수 있다.
+- `mode=mvp`는 `generator.coverage_preflight.build_config`, `mode=bulk`는 `generator.preflight.build_config`를 사용한다.
+- bulk에서는 해당 build config의 `case_sources`에 effective `output.export_jsonl` 경로가 포함되어 있어야 하며, preflight는 그 export를 중복 집계하지 않고 committed generated rows를 정확히 한 번만 합친다.
+- preflight는 보조 판단이다. 최종 split/dedup/coverage 진실은 여전히 실제 `build` 결과다.
 
 ## 2. `validate_package()`가 다시 확인하는 것
 
@@ -140,12 +147,16 @@ load templates/cases
 - `semantic_equivalence_group`
 - `kr_en_pair_id`
 - `benign_sibling_id`
+- `contrast_group_id`
 - `tool_transition_type`
 - `replay_window`
 - `delayed_injection_turn`
 - `structured_payload_type`
 - `threshold_profile`
 - `normalization_variant`
+- `primary_mutation`
+- `secondary_mutations`
+- `mutation_family`
 
 의미:
 
@@ -242,6 +253,14 @@ load templates/cases
 
 - P1 replay/tool transition 축이 실제 샘플에 포함됐는지 본다.
 
+### generated build 전용 profile
+
+[`configs/build_generated_dev.yaml`](configs/build_generated_dev.yaml)은 위 세 profile에 아래 셋을 더한다.
+
+- `bulk_full_family_set`: 12개 attack family 존재를 강제한다.
+- `repo_surface_axes`: `search_result`, `file_text`, `repo_file`, `yaml` surface를 강제한다.
+- `config_probe_axes`: `config_sensitivity_probe` family에서 `threshold_profile`과 `normalization_variant`의 baseline/variant cartesian 조합을 강제한다.
+
 ## 13. release mode coverage scope
 
 현재 coverage scope는 build mode에 따라 다르다.
@@ -267,6 +286,12 @@ load templates/cases
 - `validate_package()`도 dedup는 다시 계산하지 않으므로, dedup 상태를 신뢰하려면 원래 build를 통과했는지 먼저 확인해야 한다.
 
 즉 score 결과가 나왔다는 사실은 package 품질을 보증하지 않는다. 품질 gate는 build/validate가 담당한다.
+
+## 15. bulk summary/pass report 해석
+
+- bulk summary의 `status`는 현재 global survivor shortfall과 report-only deficit 여부를 기준으로 정해진다.
+- `family_shortfall`은 refill 우선순위 계산용 힌트다. 값이 남아 있어도 global `survivor_target`을 이미 넘겼고 driving deficit이 없으면 run status는 `success`가 될 수 있다.
+- `driving_deficits`는 refill 후보를 역추적 가능한 coverage 위반만 담고, 역추적 불가능한 위반은 `report_only_deficits`로 남긴다.
 
 ## 관련 소스
 

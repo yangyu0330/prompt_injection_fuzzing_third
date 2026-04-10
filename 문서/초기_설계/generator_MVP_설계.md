@@ -1,11 +1,17 @@
-# Template 기반 Case Generator MVP 설계 (수정: 2026-04-09 13:16:55 KST)
+# Template 기반 Case Generator MVP 설계 (수정: 2026-04-10 16:35:13 KST)
+
+## 상태
+
+- 현재 코드 기준으로 `pifuzz generate-cases` CLI, `configs/generator_mvp.yaml`, `configs/generator_bulk.yaml`, `src/pi_fuzzer/generator.py`, `src/pi_fuzzer/generator_common.py`, `src/pi_fuzzer/generator_bulk.py`, `src/pi_fuzzer/generator_bulk_index.py`, `src/pi_fuzzer/generator_bulk_report.py`가 이미 구현돼 있다.
+- 이 문서는 초기 설계 메모를 보존한 문서다. 아래의 미래형/추가 구현 표현은 설계 당시 문맥으로 읽고, 현재 동작 계약은 코드와 운영 문서(`README.md`, `Coverage_및_검증_가이드.md`)를 우선한다.
+- 현재 bulk mode는 `catalogs/generated_bulk/`에 shard/index/pass report를 남기고, build 입력용 export는 `catalogs/generated_cases.jsonl`로 유지한다.
 
 ## 1. 문서 목적
 
 이 문서는 현재 저장소의 퍼저 구조에 `template -> case` 자동 생성기를 추가하기 위한 MVP 설계 메모다.  
 목표는 대량 증식을 바로 구현하는 것이 아니라, 현재 curated benchmark 구조를 깨지 않고 `generated case`를 안정적으로 늘릴 수 있는 최소 설계를 정의하는 데 있다.
 
-이 문서는 현재 구현 설명 문서가 아니라, **미구현 기능의 설계 문서**다. 따라서 아래 내용은 현재 코드 동작이 아니라 **추가 구현안**으로 읽어야 한다.
+이 문서는 현재 구현 설명 문서가 아니라, **초기 설계 문서**다. 따라서 아래 내용은 설계 당시의 추가 구현안을 보존한 것으로 읽어야 한다.
 
 ## 2. 현재 기준선
 
@@ -30,7 +36,7 @@ template catalog
 - `src/pi_fuzzer/models.py`: `TemplateRecord`, `CaseRecord` 스키마 정의
 - `src/pi_fuzzer/cli.py`: 현재 `build/validate/run/score/report` CLI 진입점
 
-즉 현재 저장소는 **case를 자동 증식하는 generator는 없고**, 사람이 작성한 case를 검증하고 실행하는 구조다.
+설계 당시 기준선은 **case를 자동 증식하는 generator가 없는 상태**였고, 현재는 그 기준선 위에 `generate-cases` 경로가 추가된 상태다.
 
 ## 3. 왜 generator가 필요한가
 
