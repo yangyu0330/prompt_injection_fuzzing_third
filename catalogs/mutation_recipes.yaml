@@ -68,6 +68,30 @@ recipes:
   MR-P1-NORMAB-001:
     family: normalization_ab_variant
     rule: "<NORMALIZATION_AB_VARIANT_PLACEHOLDER>"
+  MR-DIRECT-ROLEPLAY-001:
+    family: roleplay_persona_hijack
+    rule: "<ROLEPLAY_PERSONA_HIJACK_PLACEHOLDER>"
+  MR-WRAP-STRUCT-001:
+    family: structured_wrapper_injection
+    rule: "<STRUCTURED_WRAPPER_INJECTION_PLACEHOLDER>"
+  MR-KO-HONORIFIC-001:
+    family: honorific_style
+    rule: "<HONORIFIC_STYLE_VARIANT_PLACEHOLDER>"
+  MR-KO-SPACING-ENDING-001:
+    family: spacing_particle_ending_variation
+    rule: "<SPACING_PARTICLE_ENDING_VARIATION_PLACEHOLDER>"
+  MR-WRAP-HTML-001:
+    family: html_wrapper
+    rule: "<HTML_WRAPPER_PLACEHOLDER>"
+  MR-WRAP-MARKDOWN-001:
+    family: markdown_wrapper
+    rule: "<MARKDOWN_WRAPPER_PLACEHOLDER>"
+  MR-WRAP-YAML-001:
+    family: yaml_wrapper
+    rule: "<YAML_WRAPPER_PLACEHOLDER>"
+  MR-TOOL-HIERARCHY-001:
+    family: tool_hierarchy_abuse
+    rule: "<TOOL_HIERARCHY_ABUSE_PLACEHOLDER>"
   MR-BENIGN-QUOTE-001:
     family: quote_wrapper
     rule: "<QUOTED_CONTEXT_PLACEHOLDER>"

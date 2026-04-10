@@ -1,4 +1,4 @@
-release_default:
+﻿release_default:
   required_dims:
     - language
     - source_stage
@@ -97,4 +97,104 @@ p1_replay_tool_transition:
       source_stage: tool_input
       entry_point: tool_output
       attack_family: structured_payload_misuse
+      min_count: 1
+
+bulk_full_family_set:
+  required_dims:
+    - attack_family
+  filters:
+    attack_or_benign: attack
+  min_per_cell: 1
+  required_values:
+    attack_family:
+      values:
+        - direct_user_injection
+        - indirect_document_web_rag
+        - email_agent_injection
+        - repo_coding_agent_injection
+        - tool_agent_misuse
+        - adaptive_fuzzing
+        - ko_native_mutation_layer
+        - korean_service_context
+        - ko_detector_guardrail_track
+        - replay_trajectory_injection
+        - structured_payload_misuse
+        - config_sensitivity_probe
+      min_per_value: 1
+
+repo_surface_axes:
+  required_dims:
+    - attack_family
+    - entry_point
+    - carrier_context
+  filters:
+    attack_or_benign: attack
+  min_per_cell: 1
+  required_values:
+    entry_point:
+      values:
+        - search_result
+        - file_text
+      min_per_value: 1
+    carrier_context:
+      values:
+        - repo_file
+        - yaml
+      min_per_value: 1
+  required_combinations:
+    - attack_family: indirect_document_web_rag
+      entry_point: search_result
+      carrier_context: repo_file
+      min_count: 1
+    - attack_family: indirect_document_web_rag
+      entry_point: file_text
+      carrier_context: repo_file
+      min_count: 1
+    - attack_family: repo_coding_agent_injection
+      entry_point: file_text
+      carrier_context: repo_file
+      min_count: 1
+    - attack_family: structured_payload_misuse
+      carrier_context: yaml
+      min_count: 1
+    - attack_family: repo_coding_agent_injection
+      carrier_context: yaml
+      min_count: 1
+
+config_probe_axes:
+  required_dims:
+    - attack_family
+    - threshold_profile
+    - normalization_variant
+  filters:
+    attack_or_benign: attack
+  min_per_cell: 1
+  enforce_cartesian: true
+  required_values:
+    attack_family:
+      values:
+        - config_sensitivity_probe
+      min_per_value: 1
+    threshold_profile:
+      values:
+        - baseline
+        - strict
+      min_per_value: 1
+    normalization_variant:
+      values:
+        - baseline
+        - normalization_ab_variant
+      min_per_value: 1
+  required_combinations:
+    - attack_family: config_sensitivity_probe
+      threshold_profile: baseline
+      normalization_variant: baseline
+      min_count: 1
+    - attack_family: config_sensitivity_probe
+      threshold_profile: strict
+      normalization_variant: baseline
+      min_count: 1
+    - attack_family: config_sensitivity_probe
+      threshold_profile: baseline
+      normalization_variant: normalization_ab_variant
       min_count: 1

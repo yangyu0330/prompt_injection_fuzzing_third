@@ -154,12 +154,16 @@ def structural_fingerprint(c: CaseRecord) -> str:
         c.semantic_equivalence_group,
         c.kr_en_pair_id,
         c.benign_sibling_id,
+        c.contrast_group_id,
         c.tool_transition_type,
         c.replay_window,
         str(c.delayed_injection_turn) if c.delayed_injection_turn is not None else "",
         c.structured_payload_type,
         c.threshold_profile,
         c.normalization_variant,
+        c.primary_mutation,
+        ",".join(sorted(c.secondary_mutations)),
+        ",".join(sorted(c.mutation_family)),
     ]
     return stable_key(parts)
 

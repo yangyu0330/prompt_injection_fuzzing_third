@@ -1,0 +1,35 @@
+﻿build:
+  package_id: pi-benchmark-generated-dev
+  package_version: 0.1.0
+  schema_version: 1.1.0
+  taxonomy_version: 2026-04-source-truth
+  seed: 20260403
+  mode: dev
+
+template_sources:
+  - catalogs/sample_templates.jsonl
+case_sources:
+  - catalogs/sample_cases.jsonl
+  - catalogs/generated_cases.jsonl
+
+split:
+  targets:
+    dev_calibration: 0.25
+    heldout_static: 0.35
+    adaptive: 0.20
+    benign_hard_negative: 0.20
+
+dedup:
+  mode: structured_only
+  similarity_threshold: 0.92
+
+coverage_gate:
+  enabled: true
+  matrix_path: catalogs/coverage_matrix.yaml
+  profiles:
+    - release_default
+    - p0_stage_role
+    - p1_replay_tool_transition
+    - bulk_full_family_set
+    - repo_surface_axes
+    - config_probe_axes

@@ -51,6 +51,21 @@ def test_resolve_coverage_profiles_from_matrix() -> None:
     assert "p1_replay_tool_transition" in names
 
 
+def test_resolve_coverage_profiles_includes_new_bulk_profiles() -> None:
+    cfg = {
+        "coverage_gate": {
+            "enabled": True,
+            "matrix_path": "catalogs/coverage_matrix.yaml",
+            "profiles": ["bulk_full_family_set", "repo_surface_axes", "config_probe_axes"],
+        }
+    }
+    profiles = _resolve_coverage_profiles(cfg, Path.cwd())
+    names = {p["name"] for p in profiles}
+    assert "bulk_full_family_set" in names
+    assert "repo_surface_axes" in names
+    assert "config_probe_axes" in names
+
+
 def test_run_coverage_gate_enforces_required_values() -> None:
     cfg = {
         "coverage_gate": {

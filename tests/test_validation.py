@@ -112,6 +112,30 @@ def test_dedup_keeps_same_payload_when_envelope_differs() -> None:
     assert drops == []
 
 
+def test_structural_fingerprint_differs_when_primary_mutation_differs() -> None:
+    a = _case("M1", "ko", "input", "direct", "ko_native_mutation_layer")
+    b = _case("M2", "ko", "input", "direct", "ko_native_mutation_layer")
+    a.source_role = "user"
+    b.source_role = "user"
+    a.expected_interpretation = "instruction"
+    b.expected_interpretation = "instruction"
+    a.primary_mutation = "jamo"
+    b.primary_mutation = "choseong"
+    assert structural_fingerprint(a) != structural_fingerprint(b)
+
+
+def test_structural_fingerprint_differs_when_contrast_group_differs() -> None:
+    a = _case("C1", "ko", "tool_output", "indirect", "tool_agent_misuse")
+    b = _case("C2", "ko", "tool_output", "indirect", "tool_agent_misuse")
+    a.source_role = "tool_output"
+    b.source_role = "tool_output"
+    a.expected_interpretation = "data"
+    b.expected_interpretation = "data"
+    a.contrast_group_id = "CG-A"
+    b.contrast_group_id = "CG-B"
+    assert structural_fingerprint(a) != structural_fingerprint(b)
+
+
 def test_validate_template_references_detects_unknown_template_id() -> None:
     row = _case("T1", "ko", "input", "direct", "direct_user_injection")
     row.template_id = "TMP-UNKNOWN"

@@ -1,0 +1,86 @@
+generator:
+  seed: 20260409
+  mutation_recipe_path: catalogs/mutation_recipes.yaml
+
+  coverage_preflight:
+    enabled: true
+    build_config: configs/build_generated_dev.yaml
+
+  dedup_preflight:
+    min_generated_survivors: 1
+
+  contrast_policy:
+    defaults:
+      bilingual_pairing: true
+      require_benign: false
+    families:
+      replay_trajectory_injection:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+      tool_agent_misuse:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+      structured_payload_misuse:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+
+  families:
+    replay_trajectory_injection:
+      max_cases_per_template: 24
+      languages: [ko, en]
+      entry_points: [memory_or_summary, tool_output]
+      carriers: [long_context_document, json, tool_result]
+      source_roles: [memory_note, tool_output]
+      expected_interpretations: [data, analysis_target]
+      mutations: [delayed_replay_trigger, memory_summary_poisoning]
+      tool_transition_types: [replay_to_tool]
+      replay_windows: [window_4]
+      delayed_injection_turns: [3]
+      policy_requested: [block]
+      seg_mutation_sensitive: true
+
+    structured_payload_misuse:
+      max_cases_per_template: 16
+      languages: [ko, en]
+      entry_points: [tool_output, form_field]
+      carriers: [json, tool_result, approval_form]
+      source_roles: [tool_output]
+      expected_interpretations: [data]
+      mutations: [structured_payload_function_call, parameter_policy_manipulation]
+      tool_transition_types: [user_to_tool]
+      structured_payload_types: [function_call]
+      threshold_profiles: [baseline]
+      normalization_variants: [baseline]
+      policy_requested: [block]
+
+    tool_agent_misuse:
+      max_cases_per_template: 24
+      languages: [ko, en]
+      entry_points: [tool_output, memory_or_summary, form_field]
+      carriers: [tool_result, json, long_context_document, approval_form]
+      source_roles: [tool_output, memory_note, user]
+      expected_interpretations: [data]
+      mutations: [tool_output_poisoning, memory_summary_poisoning, confirmation_bypass_framing]
+      tool_transition_types: [user_to_tool, replay_to_tool]
+      policy_requested: [annotate, block]
+      seg_mutation_sensitive: true
+
+    ko_native_mutation_layer:
+      max_cases_per_template: 20
+      languages: [ko, en]
+      entry_points: [user_prompt]
+      carriers: [plain_chat, markdown]
+      source_roles: [user]
+      expected_interpretations: [instruction]
+      mutations: [jamo, choseong, kr_digits, code_switch, deferential_request, casual_imperative, bureaucratic_formal, spacing_particle_ending_variation]
+      policy_requested: [annotate]
+
+    korean_service_context:
+      max_cases_per_template: 20
+      languages: [ko, en]
+      entry_points: [retrieved_document, email_body, quoted_reply, file_text]
+      carriers: [markdown, email_thread, long_context_document, json, csv_like_table, table, ocr_text]
+      source_roles: [retrieved_doc, assistant_quote]
+      expected_interpretations: [data]
+      mutations: [document_context_laundering, quoted_reply_footer_injection, table_csv_cell_injection, ocr_noise_indirect, bureaucratic_formal]
+      policy_requested: [annotate]

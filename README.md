@@ -43,6 +43,20 @@ pifuzz build --config configs/build_dev.yaml --out packages/dev_release
 
 출력물은 `templates.jsonl`, `cases.jsonl`, `dedup_drops.jsonl`, `manifest.json`이다.
 
+### 2-1. Generator MVP 실행 (opt-in)
+
+```bash
+pifuzz generate-cases --templates catalogs/sample_templates.jsonl --config configs/generator_mvp.yaml --out catalogs/generated_cases.jsonl
+```
+
+생성된 케이스를 함께 빌드하려면 기본 dev config 대신 아래 opt-in config를 사용한다.
+
+```bash
+pifuzz build --config configs/build_generated_dev.yaml --out packages/dev_generated_release
+```
+
+주의: generator output의 `split`은 임시값이고, 최종 split은 build 단계에서 다시 재배정된다.
+
 ### 3. 패키지 검증
 
 ```bash

@@ -1,0 +1,291 @@
+﻿generator:
+  mode: bulk
+  seed: 20260409
+  mutation_recipe_path: catalogs/mutation_recipes.yaml
+  raw_generated_target: 5000
+  survivor_target: 2000
+  max_passes: 4
+
+  output:
+    out_dir: catalogs/generated_bulk
+    export_jsonl: catalogs/generated_cases.jsonl
+    shard_by: family
+    max_rows_per_shard: 1000
+
+  preflight:
+    enabled: true
+    build_config: configs/build_generated_dev.yaml
+    fail_on_survivor_shortfall: true
+
+  dedup_index:
+    enabled: true
+    path: catalogs/generated_bulk/indexes
+
+  contrast_policy:
+    defaults:
+      bilingual_pairing: true
+      require_benign: false
+    families:
+      tool_agent_misuse:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+        benign_template_pool:
+          - template_id: TMP-KO-BENIGN-STYLE-001
+            when:
+              source_role: [tool_output, memory_note]
+              expected_interpretation: [data, analysis_target]
+      replay_trajectory_injection:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+        benign_template_pool:
+          - template_id: TMP-KO-BENIGN-STYLE-001
+            when:
+              source_role: [memory_note, tool_output]
+              expected_interpretation: [data, analysis_target]
+      structured_payload_misuse:
+        require_benign: true
+        benign_template_id: TMP-KO-BENIGN-STYLE-001
+        benign_template_pool:
+          - template_id: TMP-KO-BENIGN-STYLE-001
+            when:
+              source_role: [tool_output]
+              expected_interpretation: [data]
+      repo_coding_agent_injection:
+        require_benign: true
+        benign_template_id: TMP-BENIGN-REPO-001
+        benign_template_pool:
+          - template_id: TMP-BENIGN-REPO-001
+            when:
+              source_role: [retrieved_doc]
+          - template_id: TMP-BENIGN-YAML-001
+            when:
+              carrier_context: [yaml]
+
+  refill:
+    enabled: true
+    strategy: coverage_deficit_first
+    driving_profiles:
+      - release_default
+      - p1_replay_tool_transition
+      - bulk_full_family_set
+      - repo_surface_axes
+      - config_probe_axes
+    min_new_survivors_per_pass: 20
+
+  families:
+    tool_agent_misuse:
+      target_survivors: 400
+      max_raw_rows: 800
+      max_bundles: 220
+      priority: 100
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      benign_ratio_min: 0.2
+      languages: [ko, en]
+      entry_points: [tool_output, memory_or_summary, form_field]
+      carriers: [tool_result, json, long_context_document, approval_form]
+      source_roles: [tool_output, memory_note, user]
+      expected_interpretations: [data]
+      mutations: [tool_output_poisoning, memory_summary_poisoning, confirmation_bypass_framing]
+      tool_transition_types: [user_to_tool, replay_to_tool]
+      policy_requested: [annotate, block]
+      seg_mutation_sensitive: true
+
+    replay_trajectory_injection:
+      target_survivors: 250
+      max_raw_rows: 500
+      max_bundles: 125
+      priority: 95
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      benign_ratio_min: 0.2
+      languages: [ko, en]
+      entry_points: [memory_or_summary, tool_output]
+      carriers: [long_context_document, json, tool_result]
+      source_roles: [memory_note, tool_output]
+      expected_interpretations: [data, analysis_target]
+      mutations: [delayed_replay_trigger, memory_summary_poisoning]
+      tool_transition_types: [replay_to_tool]
+      replay_windows: [window_2, window_4]
+      delayed_injection_turns: [2, 3]
+      policy_requested: [annotate, block]
+      seg_mutation_sensitive: true
+
+    structured_payload_misuse:
+      target_survivors: 200
+      max_raw_rows: 400
+      max_bundles: 100
+      priority: 90
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      benign_ratio_min: 0.2
+      languages: [ko, en]
+      entry_points: [tool_output, form_field, file_text]
+      carriers: [yaml, json, tool_result, approval_form, repo_file]
+      source_roles: [tool_output]
+      expected_interpretations: [data]
+      mutations: [structured_payload_function_call, parameter_policy_manipulation, threshold_sweep_variant, normalization_ab_variant, yaml_wrapper]
+      tool_transition_types: [user_to_tool]
+      structured_payload_types: [function_call]
+      threshold_profiles: [baseline, strict]
+      normalization_variants: [baseline, normalization_ab_variant]
+      policy_requested: [block]
+
+    korean_service_context:
+      target_survivors: 180
+      max_raw_rows: 360
+      max_bundles: 72
+      priority: 80
+      language_ratio:
+        ko: 0.6
+        en: 0.4
+      languages: [ko, en]
+      entry_points: [retrieved_document, email_body, quoted_reply, file_text]
+      carriers: [markdown, email_thread, long_context_document, json, csv_like_table, table, ocr_text]
+      source_roles: [retrieved_doc, assistant_quote]
+      expected_interpretations: [data]
+      mutations: [document_context_laundering, quoted_reply_footer_injection, table_csv_cell_injection, ocr_noise_indirect, bureaucratic_formal]
+      policy_requested: [annotate, block]
+
+    indirect_document_web_rag:
+      target_survivors: 150
+      max_raw_rows: 300
+      max_bundles: 60
+      priority: 75
+      language_ratio:
+        ko: 0.6
+        en: 0.4
+      languages: [ko, en]
+      entry_points: [retrieved_document, webpage_body, html_comment_or_metadata, search_result, file_text]
+      carriers: [markdown, json, html, long_context_document, table, repo_file]
+      source_roles: [retrieved_doc]
+      expected_interpretations: [data]
+      mutations: [structured_wrapper_injection, rag_chunk_boundary_split, html_metadata_comment_injection, html_wrapper, document_context_laundering, markdown_wrapper]
+      policy_requested: [annotate, block]
+
+    ko_native_mutation_layer:
+      target_survivors: 150
+      max_raw_rows: 300
+      max_bundles: 90
+      priority: 70
+      language_ratio:
+        ko: 0.7
+        en: 0.3
+      languages: [ko, en]
+      entry_points: [user_prompt]
+      carriers: [plain_chat, markdown]
+      source_roles: [user]
+      expected_interpretations: [instruction]
+      mutations: [jamo, choseong, kr_digits, code_switch, deferential_request, casual_imperative, bureaucratic_formal, spacing_particle_ending_variation]
+      policy_requested: [annotate, block]
+
+    repo_coding_agent_injection:
+      target_survivors: 150
+      max_raw_rows: 300
+      max_bundles: 75
+      priority: 68
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      benign_ratio_min: 0.2
+      languages: [ko, en]
+      entry_points: [file_text, tool_output, search_result]
+      carriers: [repo_file, yaml, markdown, json]
+      source_roles: [retrieved_doc, tool_output]
+      expected_interpretations: [data]
+      mutations: [tool_hierarchy_abuse, markdown_wrapper, yaml_wrapper, structured_wrapper_injection, parameter_policy_manipulation]
+      tool_transition_types: [user_to_tool, replay_to_tool]
+      policy_requested: [annotate, block]
+
+    direct_user_injection:
+      target_survivors: 120
+      max_raw_rows: 240
+      max_bundles: 64
+      priority: 60
+      language_ratio:
+        ko: 0.6
+        en: 0.4
+      languages: [ko, en]
+      entry_points: [user_prompt]
+      carriers: [plain_chat, markdown]
+      source_roles: [user]
+      expected_interpretations: [instruction]
+      mutations: [direct_override, roleplay_persona_hijack]
+      policy_requested: [annotate, block]
+
+    email_agent_injection:
+      target_survivors: 120
+      max_raw_rows: 240
+      max_bundles: 48
+      priority: 55
+      language_ratio:
+        ko: 0.6
+        en: 0.4
+      languages: [ko, en]
+      entry_points: [quoted_reply, email_body]
+      carriers: [email_thread, ticket_thread, markdown]
+      source_roles: [assistant_quote, retrieved_doc]
+      expected_interpretations: [data]
+      mutations: [quoted_reply_footer_injection, deferential_request, bureaucratic_formal]
+      policy_requested: [annotate, block]
+
+    ko_detector_guardrail_track:
+      target_survivors: 100
+      max_raw_rows: 200
+      max_bundles: 64
+      priority: 45
+      language_ratio:
+        ko: 0.7
+        en: 0.3
+      languages: [ko, en]
+      entry_points: [user_prompt]
+      carriers: [plain_chat, ticket_thread]
+      source_roles: [user]
+      expected_interpretations: [instruction]
+      mutations: [confirmation_bypass_framing, casual_imperative, deferential_request]
+      policy_requested: [annotate, block]
+
+    adaptive_fuzzing:
+      target_survivors: 100
+      max_raw_rows: 200
+      max_bundles: 50
+      priority: 35
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      languages: [ko, en]
+      entry_points: [memory_or_summary, tool_output]
+      carriers: [long_context_document, json, tool_result, repo_file]
+      source_roles: [memory_note, tool_output]
+      expected_interpretations: [data, analysis_target]
+      mutations: [delayed_replay_trigger, memory_summary_poisoning, tool_output_poisoning, tool_hierarchy_abuse]
+      tool_transition_types: [replay_to_tool, user_to_tool]
+      replay_windows: [window_4]
+      delayed_injection_turns: [3]
+      policy_requested: [annotate, block]
+      seed_families: [replay_trajectory_injection, tool_agent_misuse, structured_payload_misuse]
+      operator_chain: [delayed_replay_trigger, tool_hierarchy_abuse, memory_summary_poisoning]
+      max_variants_per_seed: 4
+      seed_selection_limit: 30
+
+    config_sensitivity_probe:
+      target_survivors: 80
+      max_raw_rows: 160
+      max_bundles: 32
+      priority: 30
+      language_ratio:
+        ko: 0.5
+        en: 0.5
+      languages: [ko, en]
+      entry_points: [user_prompt, file_text]
+      carriers: [plain_chat, yaml]
+      source_roles: [user]
+      expected_interpretations: [instruction]
+      mutations: [threshold_sweep_variant, normalization_ab_variant, yaml_wrapper, direct_override]
+      threshold_profiles: [baseline, strict]
+      normalization_variants: [baseline, normalization_ab_variant]
+      probe_pairs: [threshold_only, normalization_only, combined]
+      policy_requested: [annotate, block]

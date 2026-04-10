@@ -10,6 +10,7 @@ import typer
 from .build import build_package, validate_package
 from .dispatch import build_request_payload, dispatch_http, map_response
 from .engine import load_package, load_runs, load_target_config, save_runs
+from .generator import generate_cases
 from .ingest import ingest_public
 from .io_utils import dump_json, read_json
 from .reporting import write_results_csv, write_scorecard_json, write_scorecard_markdown
@@ -72,6 +73,28 @@ def cmd_ingest_public(
 ) -> None:
     result = ingest_public(source=source, input_path=input_path, out_path=out)
     typer.echo(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+@app.command("generate-cases")
+def cmd_generate_cases(
+    templates: Annotated[list[Path], typer.Option("--templates")],
+    config: Annotated[Path, typer.Option("--config")] = Path("configs/generator_mvp.yaml"),
+    out: Annotated[Path, typer.Option("--out")] = Path("catalogs/generated_cases.jsonl"),
+    resume: Annotated[bool, typer.Option("--resume")] = False,
+) -> None:
+    if not templates:
+        raise typer.BadParameter("at least one --templates path is required")
+    summary = generate_cases(
+        template_sources=templates,
+        config_path=config,
+        out_path=out,
+        project_root=_project_root(),
+        resume=resume,
+    )
+    typer.echo(json.dumps(summary, ensure_ascii=False, indent=2))
+    status = str(summary.get("status", ""))
+    if status.startswith("failed_"):
+        raise typer.Exit(code=2)
 
 
 @app.command("run")
