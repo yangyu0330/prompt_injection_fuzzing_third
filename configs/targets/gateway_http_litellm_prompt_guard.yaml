@@ -1,0 +1,35 @@
+target_id: gateway-http-litellm-prompt-guard
+mode: gateway
+transport: http
+url: http://127.0.0.1:8012/v1/evaluate
+method: POST
+headers:
+  Content-Type: application/json
+body_template:
+  messages:
+    - role: system
+      content: "{trusted_instruction}"
+    - role: user
+      content: "{rendered_input}"
+  metadata:
+    case_id: "{case_id}"
+    source_stage: "{source_stage}"
+    turn_mode: "{turn_mode}"
+    guardrail_toggle: "{guardrail_toggle}"
+    enforcement_mode: "{enforcement_mode}"
+request_field_map: {}
+response_field_map:
+  detected_pre: guardrail.pre.detected
+  detected_post: guardrail.post.detected
+  masked: enforcement.masked
+  blocked_effectively: enforcement.blocked
+  effective_pass: enforcement.passed
+  ttft_ms: telemetry.ttft_ms
+  latency_ms: telemetry.latency_ms
+timeout_sec: 60
+supports_pre_post: true
+supports_mask: true
+supports_tool_log: false
+supports_ttft: true
+auth: {}
+notes: LiteLLM gateway probe with Prompt Guard pre-check

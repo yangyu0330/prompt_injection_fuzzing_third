@@ -1,0 +1,16 @@
+general_settings:
+  master_key: "sk-local-litellm"
+
+model_list:
+  - model_name: "pi-fuzz-smoke-model"
+    litellm_params:
+      model: "openai/gpt-4o-mini"
+      api_key: "sk-dummy"
+
+guardrails:
+  - guardrail_name: "prompt-guard-pre"
+    litellm_params:
+      guardrail: "litellm_custom_guardrail.PromptGuardPreGuardrail"
+      mode: "during_call"
+      api_base: "http://127.0.0.1:8011"
+      timeout_sec: 8

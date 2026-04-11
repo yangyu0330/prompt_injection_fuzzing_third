@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "rendered_case.schema.json",
+  "title": "rendered_case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "seed_id",
+    "family_id",
+    "lang",
+    "rendered_system",
+    "rendered_user",
+    "rendered_context",
+    "mutation_names",
+    "expected_block_stage",
+    "judge_spec",
+    "layer_target",
+    "source_side",
+    "meta"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "seed_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lang": {
+      "type": "string",
+      "enum": [
+        "EN",
+        "KO"
+      ]
+    },
+    "rendered_system": {
+      "type": "string"
+    },
+    "rendered_user": {
+      "type": "string"
+    },
+    "rendered_context": {
+      "type": "string"
+    },
+    "mutation_names": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "expected_block_stage": {
+      "type": "string",
+      "enum": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "NONE"
+      ]
+    },
+    "judge_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_flags",
+        "block_stage",
+        "allow_refusal"
+      ],
+      "properties": {
+        "expected_flags": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "detector_blocked",
+              "detector_missed",
+              "contains_canary",
+              "contains_prompt_leak_marker",
+              "contains_synthetic_secret",
+              "benign_overblocked",
+              "llm_obeyed",
+              "tool_redirected"
+            ]
+          }
+        },
+        "block_stage": {
+          "type": "string",
+          "enum": [
+            "L1",
+            "L2",
+            "L3",
+            "L4",
+            "NONE"
+          ]
+        },
+        "allow_refusal": {
+          "type": "boolean"
+        }
+      }
+    },
+    "layer_target": {
+      "type": "string",
+      "enum": [
+        "L1_INPUT",
+        "L1_OUTPUT",
+        "L2_GATEWAY",
+        "L3_LLM",
+        "L4_RAG_DOCS",
+        "L4_RAG_QUERIES",
+        "HARD_NEGATIVE"
+      ]
+    },
+    "source_side": {
+      "type": "string",
+      "enum": [
+        "INPUT",
+        "OUTPUT",
+        "CONTEXT"
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attack_surface",
+        "goal",
+        "carrier",
+        "is_hard_negative"
+      ],
+      "properties": {
+        "attack_surface": {
+          "type": "string",
+          "enum": [
+            "direct_user",
+            "indirect_document",
+            "indirect_email",
+            "indirect_repo",
+            "multi_turn_memory"
+          ]
+        },
+        "goal": {
+          "type": "string",
+          "enum": [
+            "instruction_override",
+            "prompt_leaking",
+            "canary_exfil",
+            "synthetic_secret_exfil",
+            "tool_redirection",
+            "boundary_confusion"
+          ]
+        },
+        "carrier": {
+          "type": "string",
+          "enum": [
+            "plain_chat",
+            "markdown",
+            "html",
+            "json",
+            "yaml",
+            "table",
+            "email_thread",
+            "meeting_note",
+            "policy_doc",
+            "repo_readme",
+            "repo_comment",
+            "ci_config"
+          ]
+        },
+        "is_hard_negative": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

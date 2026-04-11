@@ -170,3 +170,22 @@ def test_vendor_claim_gap_uses_case_support_when_run_flag_missing() -> None:
 
     scorecard = build_scorecard([run], [case], coverage_summary={"passed": True})
     assert "claim_gap" in scorecard.by_vendor_claim_gap
+
+
+def test_scorecard_excludes_error_runs_from_metrics_and_tracks_errors() -> None:
+    cases = [_case("A", "attack"), _case("B", "benign")]
+    ok_run = _run("A", "allow", blocked=False, effective=True)
+    error_run = _run("B", "block", blocked=True, effective=False)
+    error_run.status = "error"
+    error_run.error_code = "dispatch_http_error"
+    error_run.detected_pre = True
+    error_run.blocked_effectively = True
+
+    scorecard = build_scorecard([ok_run, error_run], cases, coverage_summary={"passed": True})
+
+    assert scorecard.run["total_runs"] == 2
+    assert scorecard.run["scored_runs"] == 1
+    assert scorecard.run["error_runs"] == 1
+    assert scorecard.run["error_codes"] == {"dispatch_http_error": 1}
+    assert scorecard.by_enforcement_mode["allow"]["n"] == 1
+    assert scorecard.by_enforcement_mode["block"]["n"] == 0

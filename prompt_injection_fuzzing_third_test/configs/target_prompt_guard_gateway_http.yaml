@@ -1,0 +1,42 @@
+target_id: prompt-guard-gateway-http
+mode: gateway
+transport: http
+url: http://127.0.0.1:8787/gateway/evaluate
+method: POST
+headers:
+  Content-Type: application/json
+body_template:
+  text: "{rendered_input}"
+  trusted_instruction: "{trusted_instruction}"
+  user_goal: "{user_goal}"
+  guardrail_toggle: "{guardrail_toggle}"
+  enforcement_mode: "{enforcement_mode}"
+  metadata:
+    case_id: "{case_id}"
+    language: "{language}"
+    attack_or_benign: "{policy_requested}"
+    variant: "{carrier_context}"
+request_field_map: {}
+response_field_map:
+  detected_pre: detected_pre
+  detected_post: detected_post
+  masked: masked
+  blocked_effectively: blocked_effectively
+  effective_pass: effective_pass
+  policy_executed: policy_executed
+  label: label
+  malicious_score: malicious_score
+  benign_score: benign_score
+  segment_count: segment_count
+  max_segment_index: max_segment_index
+  model_id: model_id
+timeout_sec: 60
+supports_pre_post: true
+supports_mask: true
+supports_tool_log: false
+supports_ttft: false
+auth: {}
+engine_name: llama-prompt-guard-2-86m
+gateway_name: prompt-guard-local-gateway
+model_name: meta-llama/Llama-Prompt-Guard-2-86M
+notes: "L2 gateway-style integration via local Prompt Guard HTTP adapter"

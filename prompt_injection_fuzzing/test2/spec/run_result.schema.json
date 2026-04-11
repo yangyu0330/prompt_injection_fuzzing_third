@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "run_result.schema.json",
+  "title": "run_result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "layer_id",
+    "engine_id",
+    "blocked_input",
+    "blocked_context",
+    "blocked_output",
+    "latency_ms",
+    "cost_usd",
+    "utility_pass",
+    "judge_event"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "layer_id": {
+      "type": "string",
+      "enum": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ]
+    },
+    "engine_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blocked_input": {
+      "type": "boolean"
+    },
+    "blocked_context": {
+      "type": "boolean"
+    },
+    "blocked_output": {
+      "type": "boolean"
+    },
+    "latency_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "utility_pass": {
+      "type": "boolean"
+    },
+    "judge_event": {
+      "$ref": "judge_event.schema.json"
+    }
+  }
+}

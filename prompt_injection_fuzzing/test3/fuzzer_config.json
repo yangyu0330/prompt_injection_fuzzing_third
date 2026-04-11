@@ -1,0 +1,6 @@
+{
+  "base_seed_path": "C:\\Users\\andyw\\OneDrive - 중부대학교\\바탕 화면\\prompt_injection_fuzzing\\test3\\data\\suites\\base_seed.jsonl",
+  "default_generated_path": "C:\\Users\\andyw\\OneDrive - 중부대학교\\바탕 화면\\prompt_injection_fuzzing\\test3\\data\\generated\\cases.jsonl",
+  "default_result_path": "C:\\Users\\andyw\\OneDrive - 중부대학교\\바탕 화면\\prompt_injection_fuzzing\\test3\\reports\\run_results.jsonl",
+  "default_summary_path": "C:\\Users\\andyw\\OneDrive - 중부대학교\\바탕 화면\\prompt_injection_fuzzing\\test3\\reports\\summary.json"
+}

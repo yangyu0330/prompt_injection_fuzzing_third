@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .dispatch import build_request_payload, dispatch_http, map_response
+from .guardrail_adapters import ResponseAdapterError, apply_response_adapter
 from .models import CaseRecord, RunRecord, TargetConfig
 from .normalize import (
     normalize_execution_layer,
@@ -16,6 +17,7 @@ from .normalize import (
     normalize_source_role,
     normalize_tool_transition_type,
 )
+from .runtime_render import render_runtime_trusted_instruction, render_runtime_untrusted_input
 
 
 def _stable_int(seed_text: str, low: int, high: int) -> int:
@@ -98,7 +100,69 @@ def _apply_enforcement(detected: bool, enforcement_mode: str) -> tuple[bool, boo
     return masked, blocked, effective_pass
 
 
+def _coerce_bool(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "1", "yes", "y", "on", "allow", "allowed", "pass", "passed"}:
+            return True
+        if lowered in {"false", "0", "no", "n", "off", "block", "blocked", "deny", "denied"}:
+            return False
+    return default
+
+
+def _required_response_keys(mode: str) -> tuple[str, ...]:
+    normalized = (mode or "").strip().lower()
+    if normalized == "text_only":
+        return ("detected",)
+    if normalized == "gateway":
+        return ("detected_pre", "blocked_effectively", "effective_pass")
+    return ()
+
+
+def _validate_required_response_fields(mode: str, mapped: dict[str, Any]) -> None:
+    missing = [key for key in _required_response_keys(mode) if mapped.get(key) is None]
+    if missing:
+        raise ValueError(f"missing required mapped fields: {', '.join(missing)}")
+
+
+def _finalize_error_run(
+    record: RunRecord,
+    case: CaseRecord,
+    out_dir: Path,
+    payload: dict[str, Any],
+    observed_text: str,
+    error_code: str,
+    error: Exception,
+    raw_response: dict[str, Any] | None = None,
+) -> RunRecord:
+    record.status = "error"
+    record.error_code = error_code
+    record.notes = str(error)
+    record.effective_pass = False
+    record.task_completed_safely = False
+    record.response_disposition = "error"
+    _populate_common_analysis_fields(record, case, observed_text)
+    if record.latency_ms <= 0:
+        _fill_perf(record)
+    response_payload: dict[str, Any] = {
+        "error": {
+            "code": error_code,
+            "message": str(error),
+            "exception_type": error.__class__.__name__,
+        }
+    }
+    if raw_response is not None:
+        response_payload["raw_response"] = raw_response
+    return _write_transcript(record, out_dir, payload, response_payload)
+
+
 def _variables(case: CaseRecord, guardrail_toggle: str, enforcement_mode: str) -> dict[str, Any]:
+    rendered_untrusted = render_runtime_untrusted_input(case)
+    rendered_trusted = render_runtime_trusted_instruction(case)
     return {
         "case_id": case.case_id,
         "language": case.language,
@@ -111,8 +175,8 @@ def _variables(case: CaseRecord, guardrail_toggle: str, enforcement_mode: str) -
         "guardrail_toggle": guardrail_toggle,
         "enforcement_mode": enforcement_mode,
         "policy_requested": case.policy_requested or enforcement_mode,
-        "trusted_instruction": case.trusted_instruction,
-        "rendered_input": case.untrusted_content,
+        "trusted_instruction": rendered_trusted,
+        "rendered_input": rendered_untrusted,
         "user_goal": case.user_goal,
     }
 
@@ -457,17 +521,62 @@ def run_text_only_case(
     enforcement_mode: str,
 ) -> RunRecord:
     record = _base_run_record(case, "L1", target, run_seed, repeat_index, guardrail_toggle, enforcement_mode)
-    payload = build_request_payload(target, _variables(case, guardrail_toggle, enforcement_mode))
-    observed_text = str(case.untrusted_content)
+    variables = _variables(case, guardrail_toggle, enforcement_mode)
+    payload = build_request_payload(target, variables)
+    observed_text = str(variables["rendered_input"])
     response_data: dict[str, Any]
+    mapped: dict[str, Any] | None = None
+    raw: dict[str, Any] | None = None
 
     if target.transport == "http":
         t0 = time.perf_counter()
-        raw = dispatch_http(target, payload)
-        record.latency_ms = (time.perf_counter() - t0) * 1000
-        mapped = map_response(raw, target.response_field_map)
-        response_data = raw
-        record.detected_pre = bool(mapped.get("detected", False))
+        try:
+            raw = dispatch_http(target, payload)
+            record.latency_ms = (time.perf_counter() - t0) * 1000
+        except Exception as exc:
+            record.latency_ms = (time.perf_counter() - t0) * 1000
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="dispatch_http_error",
+                error=exc,
+            )
+        try:
+            mapped = map_response(raw, target.response_field_map)
+            mapped = apply_response_adapter(
+                target.response_adapter,
+                raw_response=raw,
+                mapped_response=mapped,
+                adapter_config=target.adapter_config,
+            )
+            _validate_required_response_fields(target.mode, mapped)
+            response_data = raw
+            record.detected_pre = _coerce_bool(mapped.get("detected"), default=False)
+        except ResponseAdapterError as exc:
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="response_adapter_error",
+                error=exc,
+                raw_response=raw,
+            )
+        except Exception as exc:
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="response_contract_error",
+                error=exc,
+                raw_response=raw,
+            )
     else:
         response_data = {"local_detection": True}
         record.detected_pre = _local_detection(case, guardrail_toggle)
@@ -496,21 +605,69 @@ def run_gateway_case(
     enforcement_mode: str,
 ) -> RunRecord:
     record = _base_run_record(case, "L2", target, run_seed, repeat_index, guardrail_toggle, enforcement_mode)
-    payload = build_request_payload(target, _variables(case, guardrail_toggle, enforcement_mode))
-    observed_text = str(case.untrusted_content)
+    variables = _variables(case, guardrail_toggle, enforcement_mode)
+    payload = build_request_payload(target, variables)
+    observed_text = str(variables["rendered_input"])
     response_data: dict[str, Any]
+    mapped: dict[str, Any] | None = None
+    raw: dict[str, Any] | None = None
 
     if target.transport == "http":
         t0 = time.perf_counter()
-        raw = dispatch_http(target, payload)
-        record.latency_ms = (time.perf_counter() - t0) * 1000
-        mapped = map_response(raw, target.response_field_map)
-        response_data = raw
-        record.detected_pre = bool(mapped.get("detected_pre", False))
-        record.detected_post = bool(mapped.get("detected_post", False))
-        record.masked = bool(mapped.get("masked", False))
-        record.blocked_effectively = bool(mapped.get("blocked_effectively", False))
-        record.effective_pass = bool(mapped.get("effective_pass", not record.blocked_effectively))
+        try:
+            raw = dispatch_http(target, payload)
+            record.latency_ms = (time.perf_counter() - t0) * 1000
+        except Exception as exc:
+            record.latency_ms = (time.perf_counter() - t0) * 1000
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="dispatch_http_error",
+                error=exc,
+            )
+        try:
+            mapped = map_response(raw, target.response_field_map)
+            mapped = apply_response_adapter(
+                target.response_adapter,
+                raw_response=raw,
+                mapped_response=mapped,
+                adapter_config=target.adapter_config,
+            )
+            _validate_required_response_fields(target.mode, mapped)
+            response_data = raw
+            record.detected_pre = _coerce_bool(mapped.get("detected_pre"), default=False)
+            record.detected_post = _coerce_bool(mapped.get("detected_post"), default=False)
+            record.masked = _coerce_bool(mapped.get("masked"), default=False)
+            record.blocked_effectively = _coerce_bool(mapped.get("blocked_effectively"), default=False)
+            record.effective_pass = _coerce_bool(
+                mapped.get("effective_pass"),
+                default=not record.blocked_effectively,
+            )
+        except ResponseAdapterError as exc:
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="response_adapter_error",
+                error=exc,
+                raw_response=raw,
+            )
+        except Exception as exc:
+            return _finalize_error_run(
+                record,
+                case,
+                out_dir,
+                payload,
+                observed_text,
+                error_code="response_contract_error",
+                error=exc,
+                raw_response=raw,
+            )
     else:
         response_data = {"local_gateway": True}
         record.detected_pre = _local_detection(case, guardrail_toggle)
@@ -539,8 +696,9 @@ def run_scenario_case(
     enforcement_mode: str,
 ) -> RunRecord:
     record = _base_run_record(case, "L3", target, run_seed, repeat_index, guardrail_toggle, enforcement_mode)
-    payload = build_request_payload(target, _variables(case, guardrail_toggle, enforcement_mode))
-    observed_text = str(case.untrusted_content)
+    variables = _variables(case, guardrail_toggle, enforcement_mode)
+    payload = build_request_payload(target, variables)
+    observed_text = str(variables["rendered_input"])
     response_data = {"local_scenario": True}
 
     detected = _local_detection(case, guardrail_toggle)

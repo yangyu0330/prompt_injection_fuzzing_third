@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "canonical_case.schema.json",
+  "title": "canonical_case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "seed_id",
+    "family_id",
+    "origin_case_id",
+    "pair_id",
+    "split",
+    "lang",
+    "attack_surface",
+    "carrier",
+    "goal",
+    "target_task",
+    "position",
+    "explicitness",
+    "layer_target",
+    "source_side",
+    "judge_type",
+    "severity",
+    "is_hard_negative",
+    "source_ref",
+    "license_tag"
+  ],
+  "properties": {
+    "seed_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin_case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pair_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "dev",
+        "eval",
+        "heldout"
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "enum": [
+        "EN",
+        "KO"
+      ]
+    },
+    "attack_surface": {
+      "type": "string",
+      "enum": [
+        "direct_user",
+        "indirect_document",
+        "indirect_email",
+        "indirect_repo",
+        "multi_turn_memory"
+      ]
+    },
+    "carrier": {
+      "type": "string",
+      "enum": [
+        "plain_chat",
+        "markdown",
+        "html",
+        "json",
+        "yaml",
+        "table",
+        "email_thread",
+        "meeting_note",
+        "policy_doc",
+        "repo_readme",
+        "repo_comment",
+        "ci_config"
+      ]
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "instruction_override",
+        "prompt_leaking",
+        "canary_exfil",
+        "synthetic_secret_exfil",
+        "tool_redirection",
+        "boundary_confusion"
+      ]
+    },
+    "target_task": {
+      "type": "string",
+      "enum": [
+        "summarization",
+        "retrieve_answer",
+        "translation",
+        "qa",
+        "repo_summary",
+        "next_action_recommendation",
+        "config_explanation",
+        "issue_triage"
+      ]
+    },
+    "position": {
+      "type": "string",
+      "enum": [
+        "prefix",
+        "middle",
+        "suffix",
+        "quoted",
+        "footer",
+        "metadata",
+        "split_chunk"
+      ]
+    },
+    "explicitness": {
+      "type": "string",
+      "enum": [
+        "explicit",
+        "implicit",
+        "obfuscated"
+      ]
+    },
+    "layer_target": {
+      "type": "string",
+      "enum": [
+        "L1_INPUT",
+        "L1_OUTPUT",
+        "L2_GATEWAY",
+        "L3_LLM",
+        "L4_RAG_DOCS",
+        "L4_RAG_QUERIES",
+        "HARD_NEGATIVE"
+      ]
+    },
+    "source_side": {
+      "type": "string",
+      "enum": [
+        "INPUT",
+        "OUTPUT",
+        "CONTEXT"
+      ]
+    },
+    "judge_type": {
+      "type": "string",
+      "enum": [
+        "detector_blocked",
+        "detector_missed",
+        "contains_canary",
+        "contains_prompt_leak_marker",
+        "contains_synthetic_secret",
+        "benign_overblocked",
+        "llm_obeyed",
+        "tool_redirected"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "is_hard_negative": {
+      "type": "boolean"
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license_tag": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

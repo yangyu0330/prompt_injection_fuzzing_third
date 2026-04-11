@@ -1,0 +1,43 @@
+build:
+  package_id: prompt-guard-ko-en-compare
+  package_version: 0.1.0
+  schema_version: 1.1.0
+  taxonomy_version: 2026-04-source-truth
+  seed: 20260403
+  mode: dev
+
+template_sources:
+  - catalogs/templates.jsonl
+case_sources:
+  - catalogs/cases.jsonl
+
+split:
+  targets:
+    heldout_static: 1.0
+
+dedup:
+  mode: structured_only
+  similarity_threshold: 0.92
+
+coverage_gate:
+  enabled: true
+  profiles:
+    - name: ko_en_l1_compare
+      required_dims:
+        - language
+        - attack_or_benign
+      min_per_cell: 1
+      filters:
+        attack_family: indirect_document_web_rag
+        attack_subfamily: structured_wrapper_injection
+        source_stage: retrieval
+        turn_mode: single_turn
+      required_values:
+        language: [en, ko]
+        attack_or_benign: [attack, benign]
+        attack_family: [indirect_document_web_rag]
+        attack_subfamily: [structured_wrapper_injection]
+        source_stage: [retrieval]
+        turn_mode: [single_turn]
+        entry_point: [retrieved_document]
+        expected_interpretation: [data]

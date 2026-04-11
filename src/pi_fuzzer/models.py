@@ -220,6 +220,8 @@ class TargetConfig(BaseModel):
     body_template: dict[str, Any] = Field(default_factory=dict)
     request_field_map: dict[str, str] = Field(default_factory=dict)
     response_field_map: dict[str, str] = Field(default_factory=dict)
+    response_adapter: str = ""
+    adapter_config: dict[str, Any] = Field(default_factory=dict)
     timeout_sec: int = 60
     supports_pre_post: bool = False
     supports_mask: bool = False

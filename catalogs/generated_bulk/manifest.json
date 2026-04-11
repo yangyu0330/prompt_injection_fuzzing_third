@@ -1,0 +1,44 @@
+{
+  "schema_version": "bulk-manifest-v1",
+  "status": "success",
+  "reason": "target_met",
+  "seed": 20260409,
+  "fingerprints": {
+    "effective_generator_config": "1ab0b739aa79ac1d132034ccac812a38e863aefc730ae5a2a4a12b387f2b8d5b",
+    "build_config": "f9c483517f2512616700db4db75ba6f90ad91b9b9885440d01676f2bb38aa952",
+    "template_source": "ea99f63c66ad57302914676f6fca97ceb1e305b23989267db7de22d5abd53305",
+    "curated_case_source": "7a4720bfadb06675b06ea1d59e6def8e14ccd209f404df0d7c287edf62cdd125",
+    "coverage_matrix": "99289449907251be5ae74a18d0387290ff602b8e71c68c9b33fd5a86206356f1",
+    "seed": "56d4a235b8c190edaf523fa69964772016d426f82ea24f04d1622561b16b0147"
+  },
+  "completed_passes": [
+    1
+  ],
+  "shards": [
+    "family=adaptive_fuzzing/part-0001.jsonl",
+    "family=config_sensitivity_probe/part-0001.jsonl",
+    "family=direct_user_injection/part-0001.jsonl",
+    "family=email_agent_injection/part-0001.jsonl",
+    "family=indirect_document_web_rag/part-0001.jsonl",
+    "family=ko_detector_guardrail_track/part-0001.jsonl",
+    "family=ko_native_mutation_layer/part-0001.jsonl",
+    "family=korean_service_context/part-0001.jsonl",
+    "family=replay_trajectory_injection/part-0001.jsonl",
+    "family=repo_coding_agent_injection/part-0001.jsonl",
+    "family=structured_payload_misuse/part-0001.jsonl",
+    "family=tool_agent_misuse/part-0001.jsonl"
+  ],
+  "index": {
+    "version": "bulk-index-v1",
+    "path": "catalogs/generated_bulk/indexes",
+    "bundle_count": 944,
+    "exact_hash_count": 43,
+    "structural_fingerprint_count": 2232
+  },
+  "output": {
+    "out_dir": "catalogs/generated_bulk",
+    "export_jsonl": "catalogs/generated_cases.jsonl"
+  },
+  "created_at": "2026-04-10T07:26:17.526645+00:00",
+  "updated_at": "2026-04-10T09:46:04.979032+00:00"
+}

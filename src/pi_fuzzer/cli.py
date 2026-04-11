@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Annotated
 from typing import Any
@@ -11,9 +12,11 @@ from .build import build_package, validate_package
 from .dispatch import build_request_payload, dispatch_http, map_response
 from .engine import load_package, load_runs, load_target_config, save_runs
 from .generator import generate_cases
+from .guardrail_adapters import apply_response_adapter
 from .ingest import ingest_public
 from .io_utils import dump_json, read_json
 from .reporting import write_results_csv, write_scorecard_json, write_scorecard_markdown
+from .runtime_render import render_runtime_trusted_instruction, render_runtime_untrusted_input
 from .runners import run_gateway_case, run_scenario_case, run_text_only_case
 from .scoring import build_scorecard
 
@@ -188,6 +191,8 @@ def cmd_dispatch_http(
     case = next((c for c in cases if c.case_id == case_id), None)
     if case is None:
         raise typer.BadParameter(f"case_id not found: {case_id}")
+    rendered_trusted = render_runtime_trusted_instruction(case)
+    rendered_untrusted = render_runtime_untrusted_input(case)
     payload = build_request_payload(
         target_cfg,
         {
@@ -196,15 +201,64 @@ def cmd_dispatch_http(
             "source_stage": case.source_stage,
             "turn_mode": case.turn_mode,
             "entry_point": case.entry_point,
-            "trusted_instruction": case.trusted_instruction,
-            "rendered_input": case.untrusted_content,
+            "trusted_instruction": rendered_trusted,
+            "rendered_input": rendered_untrusted,
             "guardrail_toggle": guardrail_toggle,
             "enforcement_mode": enforcement_mode,
         },
     )
     raw = dispatch_http(target_cfg, payload)
     mapped = map_response(raw, target_cfg.response_field_map)
+    mapped = apply_response_adapter(
+        target_cfg.response_adapter,
+        raw_response=raw,
+        mapped_response=mapped,
+        adapter_config=target_cfg.adapter_config,
+    )
     typer.echo(json.dumps({"payload": payload, "mapped": mapped}, ensure_ascii=False, indent=2))
+
+
+@app.command("serve-prompt-guard")
+def cmd_serve_prompt_guard(
+    host: Annotated[str, typer.Option("--host")] = "127.0.0.1",
+    port: Annotated[int, typer.Option("--port")] = 8011,
+    model_id: Annotated[str, typer.Option("--model-id")] = "meta-llama/Llama-Prompt-Guard-2-86M",
+    threshold: Annotated[float, typer.Option("--threshold")] = 0.5,
+    use_mock: Annotated[bool, typer.Option("--use-mock")] = False,
+) -> None:
+    from .prompt_guard_runtime import run_prompt_guard_server
+
+    run_prompt_guard_server(
+        host=host,
+        port=port,
+        model_id=model_id,
+        threshold=threshold,
+        use_mock=use_mock,
+    )
+
+
+@app.command("serve-gateway-probe")
+def cmd_serve_gateway_probe(
+    host: Annotated[str, typer.Option("--host")] = "127.0.0.1",
+    port: Annotated[int, typer.Option("--port")] = 8012,
+    litellm_base_url: Annotated[str, typer.Option("--litellm-base-url")] = "http://127.0.0.1:4000",
+    model_alias: Annotated[str, typer.Option("--model-alias")] = "pi-fuzz-smoke-model",
+    guardrail_name: Annotated[str, typer.Option("--guardrail-name")] = "prompt-guard-pre",
+    api_key: Annotated[str, typer.Option("--api-key")] = "",
+    timeout_sec: Annotated[float, typer.Option("--timeout-sec")] = 20.0,
+) -> None:
+    from .gateway_probe_runtime import run_gateway_probe_server
+
+    resolved_api_key = api_key or os.getenv("PI_FUZZ_LITELLM_API_KEY", "sk-local-litellm")
+    run_gateway_probe_server(
+        host=host,
+        port=port,
+        litellm_base_url=litellm_base_url,
+        model_alias=model_alias,
+        guardrail_name=guardrail_name,
+        api_key=resolved_api_key,
+        timeout_sec=timeout_sec,
+    )
 
 
 if __name__ == "__main__":

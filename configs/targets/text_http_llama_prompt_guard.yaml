@@ -1,0 +1,28 @@
+target_id: text-http-llama-prompt-guard
+mode: text_only
+transport: http
+url: http://127.0.0.1:8011/detect
+method: POST
+headers:
+  Content-Type: application/json
+body_template:
+  text: "{rendered_input}"
+  trusted_instruction: "{trusted_instruction}"
+  metadata:
+    case_id: "{case_id}"
+    language: "{language}"
+    source_stage: "{source_stage}"
+    turn_mode: "{turn_mode}"
+request_field_map: {}
+response_field_map:
+  detected: result.detected
+  detector_family: result.detector_family
+  response_disposition: result.label
+  latency_ms: telemetry.latency_ms
+timeout_sec: 30
+supports_pre_post: false
+supports_mask: false
+supports_tool_log: false
+supports_ttft: false
+auth: {}
+notes: local Prompt Guard detector service

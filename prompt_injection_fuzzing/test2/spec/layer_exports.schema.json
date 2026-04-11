@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "layer_exports.schema.json",
+  "title": "layer_exports",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pi_layer1_input",
+    "pi_layer1_output",
+    "pi_layer2_gateway",
+    "pi_layer3_llm",
+    "pi_layer4_rag_docs",
+    "pi_layer4_rag_queries",
+    "pi_hard_negative_eval",
+    "pi_stats"
+  ],
+  "properties": {
+    "pi_layer1_input": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "rendered_case.schema.json"
+      }
+    },
+    "pi_layer1_output": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "rendered_case.schema.json"
+      }
+    },
+    "pi_layer2_gateway": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "rendered_case.schema.json"
+      }
+    },
+    "pi_layer3_llm": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "rendered_case.schema.json"
+      }
+    },
+    "pi_layer4_rag_docs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "doc_id",
+          "layer_target",
+          "content",
+          "meta"
+        ],
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "layer_target": {
+            "type": "string",
+            "const": "L4_RAG_DOCS"
+          },
+          "content": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "rendered_case.schema.json#/properties/meta"
+          }
+        }
+      }
+    },
+    "pi_layer4_rag_queries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "query_id",
+          "layer_target",
+          "source_side",
+          "query_text",
+          "meta"
+        ],
+        "properties": {
+          "query_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "layer_target": {
+            "type": "string",
+            "const": "L4_RAG_QUERIES"
+          },
+          "source_side": {
+            "type": "string",
+            "enum": [
+              "INPUT",
+              "CONTEXT"
+            ]
+          },
+          "query_text": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "rendered_case.schema.json#/properties/meta"
+          }
+        }
+      }
+    },
+    "pi_hard_negative_eval": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "canonical_case.schema.json"
+      }
+    },
+    "pi_stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by_level",
+        "by_mutation",
+        "by_type",
+        "by_tier",
+        "by_lang",
+        "by_surface",
+        "by_carrier",
+        "by_goal",
+        "by_source_side",
+        "by_layer_target",
+        "by_hard_negative"
+      ],
+      "properties": {
+        "by_level": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_mutation": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_type": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_tier": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_lang": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_surface": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_carrier": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_goal": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_source_side": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_layer_target": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "by_hard_negative": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

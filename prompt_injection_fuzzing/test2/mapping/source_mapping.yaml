@@ -1,0 +1,122 @@
+version: 1
+updated_at: "2026-04-01"
+sources:
+  - source_id: bipia
+    type: benchmark
+    role: indirect_seed_backbone
+    split_allowed: [train, dev]
+    split_forbidden: [eval, heldout]
+    license_note: "see upstream benchmark license and dataset-specific notices"
+    usage_note: "task x attack_type x attack_position normalization"
+
+  - source_id: llmail_inject
+    type: dataset
+    role: email_agent_seed_and_adaptive_patterns
+    split_allowed: [train, dev, heldout]
+    split_forbidden: [eval_public]
+    license_note: "follow dataset card terms"
+    usage_note: "email thread, quoted instruction, unauthorized send_email patterns"
+
+  - source_id: injecagent
+    type: benchmark
+    role: tool_agent_goal_taxonomy
+    split_allowed: [train, dev]
+    split_forbidden: [eval, heldout]
+    license_note: "follow repository license"
+    usage_note: "direct_harm and data_stealing goals"
+
+  - source_id: agentdojo
+    type: benchmark
+    role: external_heldout_dynamic_eval
+    split_allowed: [heldout]
+    split_forbidden: [train, dev, eval]
+    license_note: "follow repository license"
+    usage_note: "never train with benchmark tasks"
+
+  - source_id: agentdyn
+    type: benchmark
+    role: dynamic_heldout_extension
+    split_allowed: [heldout]
+    split_forbidden: [train, dev, eval]
+    license_note: "follow paper/repository terms"
+    usage_note: "shopping/github/daily-life long horizon"
+
+  - source_id: agentvigil
+    type: paper_method
+    role: adaptive_mutator_strategy
+    split_allowed: [private_adaptive]
+    split_forbidden: [public_eval]
+    license_note: "method reference only"
+    usage_note: "MCTS seed prioritization and black-box search policy"
+
+  - source_id: promptfuzz
+    type: framework
+    role: focus_stage_mutation_pipeline
+    split_allowed: [private_adaptive]
+    split_forbidden: [public_eval]
+    license_note: "follow repository license"
+    usage_note: "preparation/focus workflow adaptation"
+
+  - source_id: gptfuzz
+    type: framework
+    role: direct_prompt_mutator_reference
+    split_allowed: [private_adaptive]
+    split_forbidden: [public_eval]
+    license_note: "follow repository license and release constraints"
+    usage_note: "mutator/selector abstraction only"
+
+  - source_id: neuralchemy
+    type: dataset
+    role: schema_and_split_hygiene_reference
+    split_allowed: [train, dev]
+    split_forbidden: [heldout_external]
+    license_note: "apache-2.0"
+    usage_note: "group-aware split and severity/source metadata"
+
+  - source_id: deepset_prompt_injections
+    type: dataset
+    role: smoke_sanity_set
+    split_allowed: [train, dev]
+    split_forbidden: [heldout_external]
+    license_note: "apache-2.0"
+    usage_note: "small binary sanity checks"
+
+  - source_id: pint
+    type: benchmark
+    role: detector_external_eval_and_hard_negative_reference
+    split_allowed: [eval, heldout]
+    split_forbidden: [train, dev]
+    license_note: "follow benchmark terms"
+    usage_note: "do not train on benchmark inputs"
+
+  - source_id: prodnull_repo_dataset
+    type: dataset
+    role: repo_indirect_seed_bank
+    split_allowed: [train, dev]
+    split_forbidden: [heldout_external]
+    license_note: "gated; approval required"
+    usage_note: "README/CI/config/docs/comment carriers"
+
+  - source_id: prism_guardrail_ko
+    type: dataset
+    role: ko_bootstrap_and_safe_negative
+    split_allowed: [train, dev]
+    split_forbidden: [gold_eval]
+    license_note: "gpl-3.0"
+    usage_note: "injection class is translation-based; not KO-native gold"
+
+  - source_id: kanana_safeguard_prompt
+    type: model_card_reference
+    role: ko_taxonomy_reference
+    split_allowed: [taxonomy_only]
+    split_forbidden: [dataset_merge]
+    license_note: "apache-2.0 model card"
+    usage_note: "A1 Prompt Injection / A2 Prompt Leaking labels"
+
+  - source_id: xstest_response
+    type: dataset
+    role: refusal_calibration_and_overblocking_eval
+    split_allowed: [heldout]
+    split_forbidden: [train, dev]
+    license_note: "gated access"
+    usage_note: "safe but suspicious and refusal calibration"

@@ -1,0 +1,86 @@
+{
+  "pass": 1,
+  "input_rows": 2232,
+  "survivors": 2232,
+  "coverage_violation_count": 0,
+  "driving_deficit_count": 0,
+  "report_only_deficit_count": 0,
+  "family_stats": {
+    "adaptive_fuzzing": {
+      "input": 16,
+      "survivor": 16,
+      "drop": 0
+    },
+    "benign_hard_negative": {
+      "input": 360,
+      "survivor": 360,
+      "drop": 0
+    },
+    "config_sensitivity_probe": {
+      "input": 64,
+      "survivor": 64,
+      "drop": 0
+    },
+    "direct_user_injection": {
+      "input": 116,
+      "survivor": 116,
+      "drop": 0
+    },
+    "email_agent_injection": {
+      "input": 96,
+      "survivor": 96,
+      "drop": 0
+    },
+    "indirect_document_web_rag": {
+      "input": 120,
+      "survivor": 120,
+      "drop": 0
+    },
+    "ko_detector_guardrail_track": {
+      "input": 96,
+      "survivor": 96,
+      "drop": 0
+    },
+    "ko_native_mutation_layer": {
+      "input": 180,
+      "survivor": 180,
+      "drop": 0
+    },
+    "korean_service_context": {
+      "input": 144,
+      "survivor": 144,
+      "drop": 0
+    },
+    "replay_trajectory_injection": {
+      "input": 250,
+      "survivor": 250,
+      "drop": 0
+    },
+    "repo_coding_agent_injection": {
+      "input": 150,
+      "survivor": 150,
+      "drop": 0
+    },
+    "structured_payload_misuse": {
+      "input": 200,
+      "survivor": 200,
+      "drop": 0
+    },
+    "tool_agent_misuse": {
+      "input": 440,
+      "survivor": 440,
+      "drop": 0
+    }
+  },
+  "family_shortfall": {
+    "adaptive_fuzzing": 84,
+    "config_sensitivity_probe": 16,
+    "direct_user_injection": 4,
+    "email_agent_injection": 24,
+    "indirect_document_web_rag": 30,
+    "ko_detector_guardrail_track": 4,
+    "korean_service_context": 36
+  },
+  "driving_deficits": [],
+  "report_only_deficits": []
+}

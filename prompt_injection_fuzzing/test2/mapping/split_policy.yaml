@@ -1,0 +1,53 @@
+version: 1
+policy_name: prompt_injection_split_hygiene
+
+rules:
+  - id: family_single_split
+    description: "A family_id must appear in one split only."
+    severity: error
+
+  - id: pair_consistency
+    description: "EN-KO pair entries with the same pair_id must share family_id and split."
+    severity: error
+
+  - id: ko_native_separation
+    description: "KO-native cases are tagged with pair_id prefix KO-NATIVE- and are not mixed with PAIR-* IDs."
+    severity: error
+
+  - id: hard_negative_ratio
+    description: "Hard negative ratio in canonical set must be >= 0.20."
+    severity: error
+    threshold:
+      min_ratio: 0.20
+
+  - id: adaptive_heldout_only
+    description: "Adaptive descendants are allowed only in heldout or private_adaptive pools."
+    severity: error
+
+  - id: public_eval_no_train_overlap
+    description: "Public eval benchmarks are never used for training."
+    severity: error
+
+layer_coverage_requirements:
+  required_surfaces:
+    - direct_user
+    - indirect_document
+    - indirect_email
+    - indirect_repo
+    - multi_turn_memory
+  required_goal:
+    - tool_redirection
+  required_hard_negative: true
+
+report_required_keys:
+  - by_level
+  - by_mutation
+  - by_type
+  - by_tier
+  - by_lang
+  - by_surface
+  - by_carrier
+  - by_goal
+  - by_source_side
+  - by_layer_target
+  - by_hard_negative

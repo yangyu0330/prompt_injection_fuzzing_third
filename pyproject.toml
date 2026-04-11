@@ -18,6 +18,14 @@ dependencies = [
 dev = [
   "pytest>=8.0.0"
 ]
+guardrail = [
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "transformers>=4.45.0",
+  "torch>=2.4.0",
+  "huggingface_hub>=0.24.0",
+  "litellm[proxy]>=1.60.0"
+]
 
 [project.scripts]
 pifuzz = "pi_fuzzer.cli:app"

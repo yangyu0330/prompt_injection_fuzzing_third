@@ -1,0 +1,95 @@
+{
+  "total_rows": 20000,
+  "by_lang": {
+    "en": 12000,
+    "ko_native": 4000,
+    "ko_paired": 4000
+  },
+  "by_split": {
+    "public_train": 12213,
+    "external_heldout": 2311,
+    "private_adaptive": 3276,
+    "benign_hard_negative": 2200
+  },
+  "by_surface": {
+    "multi_tool_chain": 2807,
+    "indirect_repo": 2870,
+    "multi_turn_memory": 2795,
+    "indirect_email": 3008,
+    "indirect_document": 2961,
+    "direct_user": 2843,
+    "tool_output_or_argument": 2716
+  },
+  "by_goal": {
+    "workflow_escalation": 2596,
+    "B3_privacy_pii_exfiltration": 2033,
+    "B4_multi_turn_memory_trigger": 2626,
+    "B1_indirect_rag_injection": 2005,
+    "A2_prompt_leaking": 2763,
+    "A1_prompt_injection": 2653,
+    "output_steering": 2745,
+    "B2_tool_use_hijack": 2579
+  },
+  "by_hard_negative": {
+    "attack": 17800,
+    "hard_negative": 2200
+  },
+  "by_track": {
+    "multi_tool": 2807,
+    "repo_agent": 2870,
+    "memory_agent": 2795,
+    "email_agent": 3008,
+    "rag_doc": 2961,
+    "direct": 2843,
+    "tool_agent": 2716
+  },
+  "top_source_ref": {
+    "FormalizingAndBenchmarkingPI": 1209,
+    "Open-Prompt-Injection": 1209,
+    "HouYi": 1182,
+    "internal_ko_native_design": 1028,
+    "Phase1_한국어vs영어_비교": 1016,
+    "InjecAgent": 1001,
+    "BIPIA": 979,
+    "Layer1_3자비교_종합보고서": 956,
+    "prodnull/prompt-injection-repo-dataset": 950,
+    "deepset/prompt-injections": 949,
+    "LLMail-Inject": 921,
+    "XSTest": 666,
+    "AdaptiveAttacks2025": 659,
+    "PINT": 637,
+    "AgentVigil2025": 599,
+    "PromptFuzz": 580,
+    "AutoInject2026": 562,
+    "neuralchemy": 400,
+    "KoreanGuardrailDataset": 249,
+    "RICoTA": 248
+  },
+  "split_by_lang": {
+    "en": {
+      "public_train": 7155,
+      "external_heldout": 1245,
+      "private_adaptive": 2400,
+      "benign_hard_negative": 1200
+    },
+    "ko_native": {
+      "benign_hard_negative": 1000,
+      "external_heldout": 596,
+      "public_train": 2404
+    },
+    "ko_paired": {
+      "private_adaptive": 876,
+      "public_train": 2654,
+      "external_heldout": 470
+    }
+  },
+  "generated_files": {
+    "pi_master_canonical.jsonl": 20000,
+    "pi_layer1_cases.jsonl": 20000,
+    "pi_layer2_cases.jsonl": 20000,
+    "pi_layer3_cases.jsonl": 20000,
+    "pi_layer4_docs.jsonl": 17157,
+    "pi_layer4_queries.jsonl": 17157
+  },
+  "random_seed": 20260401
+}

@@ -1,0 +1,22 @@
+{
+  "status": "success",
+  "reason": "target_met",
+  "completed_passes": [
+    1
+  ],
+  "input_rows": 2232,
+  "survivors": 2232,
+  "driving_deficit_count": 0,
+  "report_only_deficit_count": 0,
+  "family_shortfall": {
+    "adaptive_fuzzing": 84,
+    "config_sensitivity_probe": 16,
+    "direct_user_injection": 4,
+    "email_agent_injection": 24,
+    "indirect_document_web_rag": 30,
+    "ko_detector_guardrail_track": 4,
+    "korean_service_context": 36
+  },
+  "driving_deficits": [],
+  "report_only_deficits": []
+}

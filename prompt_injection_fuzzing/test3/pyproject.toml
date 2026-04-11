@@ -1,0 +1,17 @@
+[project]
+name = "prompt-injection-fuzzer"
+version = "0.1.0"
+description = "Prompt injection fuzzer for EN/KO with JSONL pipeline and oracle-based evaluation."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+pifuzz = "fuzzer.cli:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["fuzzer"]
+

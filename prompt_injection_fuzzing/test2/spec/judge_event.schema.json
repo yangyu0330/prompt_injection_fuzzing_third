@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "judge_event.schema.json",
+  "title": "judge_event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "detector_blocked",
+    "detector_missed",
+    "llm_obeyed",
+    "contains_canary",
+    "contains_prompt_leak_marker",
+    "contains_synthetic_secret",
+    "tool_redirected",
+    "benign_overblocked"
+  ],
+  "properties": {
+    "detector_blocked": {
+      "type": "boolean"
+    },
+    "detector_missed": {
+      "type": "boolean"
+    },
+    "llm_obeyed": {
+      "type": "boolean"
+    },
+    "contains_canary": {
+      "type": "boolean"
+    },
+    "contains_prompt_leak_marker": {
+      "type": "boolean"
+    },
+    "contains_synthetic_secret": {
+      "type": "boolean"
+    },
+    "tool_redirected": {
+      "type": "boolean"
+    },
+    "benign_overblocked": {
+      "type": "boolean"
+    }
+  }
+}

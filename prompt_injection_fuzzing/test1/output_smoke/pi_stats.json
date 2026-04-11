@@ -1,0 +1,95 @@
+{
+  "total_rows": 170,
+  "by_lang": {
+    "en": 80,
+    "ko_native": 60,
+    "ko_paired": 30
+  },
+  "by_split": {
+    "public_train": 104,
+    "external_heldout": 16,
+    "private_adaptive": 22,
+    "benign_hard_negative": 28
+  },
+  "by_surface": {
+    "multi_turn_memory": 23,
+    "indirect_email": 34,
+    "tool_output_or_argument": 15,
+    "direct_user": 32,
+    "multi_tool_chain": 27,
+    "indirect_document": 19,
+    "indirect_repo": 20
+  },
+  "by_goal": {
+    "B4_multi_turn_memory_trigger": 22,
+    "output_steering": 28,
+    "B2_tool_use_hijack": 20,
+    "B3_privacy_pii_exfiltration": 9,
+    "A2_prompt_leaking": 23,
+    "A1_prompt_injection": 28,
+    "B1_indirect_rag_injection": 21,
+    "workflow_escalation": 19
+  },
+  "by_hard_negative": {
+    "attack": 142,
+    "hard_negative": 28
+  },
+  "by_track": {
+    "memory_agent": 23,
+    "email_agent": 34,
+    "tool_agent": 15,
+    "direct": 32,
+    "multi_tool": 27,
+    "rag_doc": 19,
+    "repo_agent": 20
+  },
+  "top_source_ref": {
+    "internal_ko_native_design": 15,
+    "Phase1_한국어vs영어_비교": 14,
+    "Layer1_3자비교_종합보고서": 11,
+    "deepset/prompt-injections": 10,
+    "HouYi": 9,
+    "KoreanGuardrailDataset": 9,
+    "BIPIA": 8,
+    "FormalizingAndBenchmarkingPI": 8,
+    "Open-Prompt-Injection": 7,
+    "AdaptiveAttacks2025": 7,
+    "XSTest": 7,
+    "PINT": 7,
+    "prodnull/prompt-injection-repo-dataset": 6,
+    "LLMail-Inject": 5,
+    "AutoInject2026": 5,
+    "InjecAgent": 3,
+    "RICoTA": 3,
+    "AgentVigil2025": 2,
+    "PromptFuzz": 2,
+    "neuralchemy": 2
+  },
+  "split_by_lang": {
+    "en": {
+      "public_train": 50,
+      "external_heldout": 6,
+      "private_adaptive": 16,
+      "benign_hard_negative": 8
+    },
+    "ko_native": {
+      "benign_hard_negative": 20,
+      "public_train": 33,
+      "external_heldout": 7
+    },
+    "ko_paired": {
+      "public_train": 21,
+      "private_adaptive": 6,
+      "external_heldout": 3
+    }
+  },
+  "generated_files": {
+    "pi_master_canonical.jsonl": 170,
+    "pi_layer1_cases.jsonl": 170,
+    "pi_layer2_cases.jsonl": 170,
+    "pi_layer3_cases.jsonl": 170,
+    "pi_layer4_docs.jsonl": 138,
+    "pi_layer4_queries.jsonl": 138
+  },
+  "random_seed": 12345
+}

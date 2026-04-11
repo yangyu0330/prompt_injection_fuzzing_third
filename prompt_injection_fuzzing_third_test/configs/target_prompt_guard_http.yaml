@@ -1,0 +1,36 @@
+target_id: prompt-guard-http
+mode: text_only
+transport: http
+url: http://127.0.0.1:8787/detect
+method: POST
+headers:
+  Content-Type: application/json
+body_template:
+  text: "{rendered_input}"
+  trusted_instruction: "{trusted_instruction}"
+  user_goal: "{user_goal}"
+  metadata:
+    case_id: "{case_id}"
+    language: "{language}"
+    attack_or_benign: "{policy_requested}"
+    variant: "{carrier_context}"
+request_field_map: {}
+response_field_map:
+  detected: detected
+  label: label
+  malicious_score: malicious_score
+  benign_score: benign_score
+  segment_count: segment_count
+  max_segment_index: max_segment_index
+  model_id: model_id
+timeout_sec: 60
+supports_pre_post: false
+supports_mask: false
+supports_tool_log: false
+supports_ttft: false
+auth: {}
+engine_name: llama-prompt-guard-2-86m
+gateway_name: ""
+model_name: meta-llama/Llama-Prompt-Guard-2-86M
+notes: "L1 detector integration via local Prompt Guard HTTP adapter"
+

@@ -1,0 +1,105 @@
+{
+  "by_level": {
+    "L1": 3354,
+    "L2": 1677,
+    "L3": 1677,
+    "L4": 3352,
+    "NONE": 10000
+  },
+  "by_mutation": {
+    "direct_user_pattern": 12,
+    "plain_chat": 2673,
+    "ko_naturalization": 30,
+    "indirect_document_pattern": 12,
+    "html": 1336,
+    "indirect_email_pattern": 12,
+    "email_thread": 2006,
+    "indirect_repo_pattern": 12,
+    "repo_readme": 1337,
+    "multi_turn_memory_pattern": 12,
+    "table": 1337,
+    "json": 1338,
+    "policy_doc": 1338,
+    "meeting_note": 3344,
+    "repo_comment": 1338,
+    "yaml": 1338,
+    "markdown": 1338,
+    "ci_config": 1337,
+    "ko_native_jamo_split": 1250,
+    "ko_native_choseong": 1250,
+    "ko_native_korean_number": 1250,
+    "ko_native_spacing_collapse": 1250,
+    "ko_native_particle_shift": 1250,
+    "ko_native_style_shift": 1250,
+    "ko_native_code_switch": 1250,
+    "ko_native_zero_width_fullwidth": 1250,
+    "benign_training_example": 10000
+  },
+  "by_type": {
+    "detector_blocked": 6,
+    "contains_canary": 1512,
+    "contains_prompt_leak_marker": 1512,
+    "tool_redirected": 1512,
+    "contains_synthetic_secret": 1512,
+    "detector_missed": 3336,
+    "llm_obeyed": 670,
+    "benign_overblocked": 10000
+  },
+  "by_tier": {
+    "high": 3020,
+    "critical": 4536,
+    "medium": 2504,
+    "low": 10000
+  },
+  "by_lang": {
+    "EN": 5030,
+    "KO": 15030
+  },
+  "by_surface": {
+    "direct_user": 4012,
+    "indirect_document": 4012,
+    "indirect_email": 4012,
+    "indirect_repo": 4012,
+    "multi_turn_memory": 4012
+  },
+  "by_carrier": {
+    "plain_chat": 2673,
+    "html": 1336,
+    "email_thread": 2006,
+    "repo_readme": 1337,
+    "table": 1337,
+    "json": 1338,
+    "policy_doc": 1338,
+    "meeting_note": 3344,
+    "repo_comment": 1338,
+    "yaml": 1338,
+    "markdown": 1338,
+    "ci_config": 1337
+  },
+  "by_goal": {
+    "instruction_override": 3508,
+    "canary_exfil": 3512,
+    "prompt_leaking": 3512,
+    "tool_redirection": 3512,
+    "synthetic_secret_exfil": 1512,
+    "boundary_confusion": 4504
+  },
+  "by_source_side": {
+    "INPUT": 6682,
+    "CONTEXT": 11701,
+    "OUTPUT": 1677
+  },
+  "by_layer_target": {
+    "L1_INPUT": 1677,
+    "L1_OUTPUT": 1677,
+    "L2_GATEWAY": 1677,
+    "L3_LLM": 1677,
+    "L4_RAG_DOCS": 1676,
+    "L4_RAG_QUERIES": 1676,
+    "HARD_NEGATIVE": 10000
+  },
+  "by_hard_negative": {
+    "false": 10060,
+    "true": 10000
+  }
+}
